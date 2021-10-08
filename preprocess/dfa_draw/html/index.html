@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<title>Autonoma Simulator</title>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<script type="text/javascript" src="../js/maincanvas.js"></script>
+	<script type="text/javascript" src="../js/actions.js"></script>
+	<script type="text/javascript" src="../js/transition.js"></script>
+	<script type="text/javascript" src="../js/input.js"></script>
+	<script type="text/javascript" src="../js/engine.js"></script>
+	<script type="text/javascript" src="../js/jquery.js"></script>
+	<script type="text/javascript" src="../js/importexport.js"></script>
+	<script type="text/javascript" src="../js/jsbezier.js"></script>
+	<link rel="stylesheet" href="../css/style.css">
+	<link rel="icon" href="../html/favicon.png">
+</head>
+<body>
+<div id = "wrapper">
+	<div id="c1">
+	<input type="text" id="alphabet"> <input type="submit" class="button" value="Set Alphabet" onclick="setAlphabet()">  (e.g.: "1, 0")<br> 
+	<input type="text" id="json-area">
+	<input type="submit" class="button" value="Download JSON" onclick="exportJson()">
+	<input type="submit" class="button" value="Upload JSON" onclick="importJson()"><br>
+	<div id="instructions">
+	<br>
+	<b>CREATE STATE (Q key):</b> create a state on the mouse position.<br>
+	<b>SELECT TRANSITION / STATE:</b> left-click on a state or transition.<br>
+	<b>MOVE STATE:</b> hold left-click on a state and move the cursor.<br>
+	<b>CREATE TRANSITION (E key):</b> once a state is selected, press E and select another state.<br>
+	<b>REMOVE TRANSITION / STATE (DEL key):</b> once a state or transition is selected, press DEL to remove it.<br>
+	<b>RENAME STATE (R key):</b> once a state is selected, press R to enter the renaming mode. In the renaming mode, press ENTER to set the state name.<br>
+	<b>SET FINAL STATE (F key):</b> once a state is selected, press F to set it as a final state.<br>
+	<b>SET INITIAL STATE (S key):</b> once a state is selected, press S to set it as the start state.<br>
+	</div>
+	</div>
+	<div id = "c2">
+		<div id="canvas">
+		<br>
+		<input type="text" id="input-word"> <input id="run-button" type="submit" class="button" value="Run" onclick="run()"><br><br>
+		<canvas id="main-canvas" width="600" height="800"></canvas>
+		</div>
+	</div>
+	<div id = "c3">
+	<div id="error">
+
+	</div>
+	<br>
+
+	<div id="results">
+	</div>
+	</div>
+	</div>
+</body>
+</html>
