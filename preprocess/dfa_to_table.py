@@ -56,6 +56,14 @@ if __name__ == "__main__":
     print(final_states)
     print(lookahead_states)
 
+    with open('final_states.txt', 'w') as file2:
+        for state in final_states:
+            file2.write(str(state) + "\n")
+    with open('look_ahead_states.txt', 'w') as file3:
+        for state in lookahead_states:
+            file3.write('%s ' % state)
+        file3.close()
+
     # Iterate through edges
     for edge in data["transitions"]:
         state_src_id = edge["state_src_id"]
