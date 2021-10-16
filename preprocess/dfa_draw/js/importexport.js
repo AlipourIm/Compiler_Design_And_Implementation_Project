@@ -1,12 +1,13 @@
 var jsonArea = document.getElementById("json-area");
 
-function Serialized_state(id, name, coord, radius, end, start) {
+function Serialized_state(id, name, coord, radius, end, start, label) {
 	this.id = id;
 	this.name = name;
 	this.coord = coord;
 	this.radius = radius;
 	this.end = end;
 	this.start = start;
+	this.label = label;
 }
 
 function Serialized_transition(id, state_src_id, state_dst_id, symbols) {
@@ -66,7 +67,8 @@ function getJson() {
 			state.coord,
 			state.radius,
 			state.end,
-			state.start));
+			state.start,
+			state.label));
 	}
 
 	for (var i = 0; i < transitionList.length; i++) {

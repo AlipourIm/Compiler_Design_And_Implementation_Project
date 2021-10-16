@@ -1,5 +1,550 @@
 {
-    "alphabet": [
+  "alphabet": [
+    "d",
+    "l",
+    "w",
+    "s",
+    "/",
+    "*",
+    "n",
+    "=",
+    "z",
+    "o"
+  ],
+  "states": [
+    {
+      "id": 0,
+      "name": "0",
+      "coord": {
+        "x": 64,
+        "y": 40
+      },
+      "radius": 20,
+      "end": false,
+      "start": true
+    },
+    {
+      "id": 1,
+      "name": "1",
+      "coord": {
+        "x": 221,
+        "y": 172
+      },
+      "radius": 20,
+      "end": false,
+      "start": false
+    },
+    {
+      "id": 2,
+      "name": "2*",
+      "coord": {
+        "x": 384,
+        "y": 172
+      },
+      "radius": 20,
+      "end": true,
+      "start": false,
+      "label": "NUM"
+    },
+    {
+      "id": 3,
+      "name": "3",
+      "coord": {
+        "x": 381,
+        "y": 238
+      },
+      "radius": 20,
+      "end": true,
+      "start": false,
+      "label": "ERR: Invalid number"
+    },
+    {
+      "id": 4,
+      "name": "4",
+      "coord": {
+        "x": 232,
+        "y": 49
+      },
+      "radius": 20,
+      "end": false,
+      "start": false
+    },
+    {
+      "id": 5,
+      "name": "5*",
+      "coord": {
+        "x": 383,
+        "y": 49
+      },
+      "radius": 20,
+      "end": true,
+      "start": false,
+      "label": "KEYWORD/ID"
+    },
+    {
+      "id": 6,
+      "name": "6",
+      "coord": {
+        "x": 379,
+        "y": 112
+      },
+      "radius": 20,
+      "end": true,
+      "start": false,
+      "label": "ERR: Invalid input"
+    },
+    {
+      "id": 7,
+      "name": "7",
+      "coord": {
+        "x": 219,
+        "y": 301
+      },
+      "radius": 20,
+      "end": false,
+      "start": false
+    },
+    {
+      "id": 8,
+      "name": "8*",
+      "coord": {
+        "x": 379,
+        "y": 304
+      },
+      "radius": 20,
+      "end": true,
+      "start": false,
+      "label": "WHITESPACE"
+    },
+    {
+      "id": 9,
+      "name": "9",
+      "coord": {
+        "x": 218,
+        "y": 447
+      },
+      "radius": 20,
+      "end": false,
+      "start": false
+    },
+    {
+      "id": 10,
+      "name": "10",
+      "coord": {
+        "x": 392,
+        "y": 450
+      },
+      "radius": 20,
+      "end": false,
+      "start": false
+    },
+    {
+      "id": 11,
+      "name": "11*",
+      "coord": {
+        "x": 526,
+        "y": 455
+      },
+      "radius": 20,
+      "end": true,
+      "start": false,
+      "label": "COMMENT"
+    },
+    {
+      "id": 12,
+      "name": "12",
+      "coord": {
+        "x": 223,
+        "y": 527
+      },
+      "radius": 20,
+      "end": false,
+      "start": false
+    },
+    {
+      "id": 13,
+      "name": "13",
+      "coord": {
+        "x": 387,
+        "y": 513
+      },
+      "radius": 20,
+      "end": false,
+      "start": false
+    },
+    {
+      "id": 14,
+      "name": "14",
+      "coord": {
+        "x": 526,
+        "y": 518
+      },
+      "radius": 20,
+      "end": true,
+      "start": false,
+      "label": "COMMENT"
+    },
+    {
+      "id": 15,
+      "name": "15*",
+      "coord": {
+        "x": 213,
+        "y": 355
+      },
+      "radius": 20,
+      "end": true,
+      "start": false,
+      "label": "ERR: Invalid input"
+    },
+    {
+      "id": 16,
+      "name": "16",
+      "coord": {
+        "x": 219,
+        "y": 633
+      },
+      "radius": 20,
+      "end": false,
+      "start": false
+    },
+    {
+      "id": 17,
+      "name": "17*",
+      "coord": {
+        "x": 387,
+        "y": 641
+      },
+      "radius": 20,
+      "end": true,
+      "start": false,
+      "label": "SYMBOL"
+    },
+    {
+      "id": 18,
+      "name": "18",
+      "coord": {
+        "x": 387,
+        "y": 706
+      },
+      "radius": 20,
+      "end": true,
+      "start": false,
+      "label": "SYMBOL"
+    },
+    {
+      "id": 19,
+      "name": "19",
+      "coord": {
+        "x": 221,
+        "y": 753
+      },
+      "radius": 20,
+      "end": false,
+      "start": false
+    },
+    {
+      "id": 20,
+      "name": "20*",
+      "coord": {
+        "x": 526,
+        "y": 583
+      },
+      "radius": 20,
+      "end": true,
+      "start": false,
+      "label": "ERR: Unclosed comment"
+    },
+    {
+      "id": 21,
+      "name": "21",
+      "coord": {
+        "x": 388,
+        "y": 759
+      },
+      "radius": 20,
+      "end": true,
+      "start": false,
+      "label": "SYMBOL"
+    },
+    {
+      "id": 22,
+      "name": "22",
+      "coord": {
+        "x": 389,
+        "y": 827
+      },
+      "radius": 20,
+      "end": true,
+      "start": false,
+      "label": "ERR: Unmatched comment"
+    },
+    {
+      "id": 23,
+      "name": "23",
+      "coord": {
+        "x": 225,
+        "y": 865
+      },
+      "radius": 20,
+      "end": true,
+      "start": false,
+      "label": "SYMBOL"
+    },
+    {
+      "id": 24,
+      "name": "24",
+      "coord": {
+        "x": 227,
+        "y": 946
+      },
+      "radius": 20,
+      "end": true,
+      "start": false,
+      "label": "EOF"
+    }
+  ],
+  "transitions": [
+    {
+      "id": 0,
+      "state_src_id": 0,
+      "state_dst_id": 1,
+      "symbols": [
+        "d"
+      ]
+    },
+    {
+      "id": 1,
+      "state_src_id": 1,
+      "state_dst_id": 1,
+      "symbols": [
+        "d"
+      ]
+    },
+    {
+      "id": 2,
+      "state_src_id": 1,
+      "state_dst_id": 2,
+      "symbols": [
+        "w",
+        "s",
+        "/",
+        "*",
+        "n",
+        "=",
+        "z"
+      ]
+    },
+    {
+      "id": 3,
+      "state_src_id": 1,
+      "state_dst_id": 3,
+      "symbols": [
+        "l",
+        "o"
+      ]
+    },
+    {
+      "id": 4,
+      "state_src_id": 0,
+      "state_dst_id": 4,
+      "symbols": [
+        "l"
+      ]
+    },
+    {
+      "id": 5,
+      "state_src_id": 4,
+      "state_dst_id": 4,
+      "symbols": [
+        "l",
+        "d"
+      ]
+    },
+    {
+      "id": 6,
+      "state_src_id": 4,
+      "state_dst_id": 5,
+      "symbols": [
+        "w",
+        "s",
+        "/",
+        "*",
+        "n",
+        "=",
+        "z"
+      ]
+    },
+    {
+      "id": 7,
+      "state_src_id": 4,
+      "state_dst_id": 6,
+      "symbols": [
+        "o"
+      ]
+    },
+    {
+      "id": 8,
+      "state_src_id": 0,
+      "state_dst_id": 7,
+      "symbols": [
+        "w",
+        "n"
+      ]
+    },
+    {
+      "id": 9,
+      "state_src_id": 7,
+      "state_dst_id": 7,
+      "symbols": [
+        "w",
+        "n"
+      ]
+    },
+    {
+      "id": 10,
+      "state_src_id": 7,
+      "state_dst_id": 8,
+      "symbols": [
+        "d",
+        "l",
+        "s",
+        "o",
+        "/",
+        "*",
+        "=",
+        "z"
+      ]
+    },
+    {
+      "id": 11,
+      "state_src_id": 0,
+      "state_dst_id": 9,
+      "symbols": [
+        "/"
+      ]
+    },
+    {
+      "id": 12,
+      "state_src_id": 9,
+      "state_dst_id": 10,
+      "symbols": [
+        "/"
+      ]
+    },
+    {
+      "id": 13,
+      "state_src_id": 10,
+      "state_dst_id": 10,
+      "symbols": [
+        "d",
+        "l",
+        "w",
+        "s",
+        "/",
+        "*",
+        "o",
+        "="
+      ]
+    },
+    {
+      "id": 14,
+      "state_src_id": 10,
+      "state_dst_id": 11,
+      "symbols": [
+        "n",
+        "z"
+      ]
+    },
+    {
+      "id": 15,
+      "state_src_id": 9,
+      "state_dst_id": 12,
+      "symbols": [
+        "*"
+      ]
+    },
+    {
+      "id": 16,
+      "state_src_id": 12,
+      "state_dst_id": 13,
+      "symbols": [
+        "*"
+      ]
+    },
+    {
+      "id": 17,
+      "state_src_id": 13,
+      "state_dst_id": 14,
+      "symbols": [
+        "/"
+      ]
+    },
+    {
+      "id": 18,
+      "state_src_id": 12,
+      "state_dst_id": 12,
+      "symbols": [
+        "d",
+        "l",
+        "w",
+        "s",
+        "/",
+        "n",
+        "o",
+        "="
+      ]
+    },
+    {
+      "id": 19,
+      "state_src_id": 13,
+      "state_dst_id": 12,
+      "symbols": [
+        "d",
+        "l",
+        "w",
+        "s",
+        "*",
+        "n",
+        "o",
+        "="
+      ]
+    },
+    {
+      "id": 20,
+      "state_src_id": 9,
+      "state_dst_id": 15,
+      "symbols": [
+        "d",
+        "l",
+        "w",
+        "s",
+        "n",
+        "o",
+        "=",
+        "z"
+      ]
+    },
+    {
+      "id": 21,
+      "state_src_id": 0,
+      "state_dst_id": 6,
+      "symbols": [
+        "o"
+      ]
+    },
+    {
+      "id": 22,
+      "state_src_id": 0,
+      "state_dst_id": 16,
+      "symbols": [
+        "="
+      ]
+    },
+    {
+      "id": 23,
+      "state_src_id": 16,
+      "state_dst_id": 17,
+      "symbols": [
         "d",
         "l",
         "w",
@@ -7,505 +552,81 @@
         "/",
         "*",
         "n",
+        "o",
+        "z"
+      ]
+    },
+    {
+      "id": 24,
+      "state_src_id": 16,
+      "state_dst_id": 18,
+      "symbols": [
+        "="
+      ]
+    },
+    {
+      "id": 25,
+      "state_src_id": 0,
+      "state_dst_id": 19,
+      "symbols": [
+        "*"
+      ]
+    },
+    {
+      "id": 26,
+      "state_src_id": 12,
+      "state_dst_id": 20,
+      "symbols": [
+        "z"
+      ]
+    },
+    {
+      "id": 27,
+      "state_src_id": 13,
+      "state_dst_id": 20,
+      "symbols": [
+        "z"
+      ]
+    },
+    {
+      "id": 28,
+      "state_src_id": 19,
+      "state_dst_id": 21,
+      "symbols": [
+        "d",
+        "l",
+        "w",
+        "s",
+        "*",
+        "n",
         "=",
+        "z",
         "o"
-    ],
-    "states": [
-        {
-            "id": 0,
-            "name": "0",
-            "coord": {
-                "x": 64,
-                "y": 40
-            },
-            "radius": 20,
-            "end": false,
-            "start": true
-        },
-        {
-            "id": 1,
-            "name": "1",
-            "coord": {
-                "x": 221,
-                "y": 172
-            },
-            "radius": 20,
-            "end": false,
-            "start": false
-        },
-        {
-            "id": 2,
-            "name": "2*",
-            "coord": {
-                "x": 384,
-                "y": 172
-            },
-            "radius": 20,
-            "end": true,
-            "label": "NUM",
-            "start": false
-        },
-        {
-            "id": 3,
-            "name": "3",
-            "coord": {
-                "x": 381,
-                "y": 238
-            },
-            "radius": 20,
-            "end": true,
-            "label": "ERR: Invalid number",
-            "start": false
-        },
-        {
-            "id": 4,
-            "name": "4",
-            "coord": {
-                "x": 232,
-                "y": 49
-            },
-            "radius": 20,
-            "end": false,
-            "start": false
-        },
-        {
-            "id": 5,
-            "name": "5*",
-            "coord": {
-                "x": 383,
-                "y": 49
-            },
-            "radius": 20,
-            "end": true,
-            "label": "KEYWORD/ID",
-            "start": false
-        },
-        {
-            "id": 6,
-            "name": "6",
-            "coord": {
-                "x": 379,
-                "y": 112
-            },
-            "radius": 20,
-            "end": true,
-            "label": "ERR: Invalid input",
-            "start": false
-        },
-        {
-            "id": 7,
-            "name": "7",
-            "coord": {
-                "x": 219,
-                "y": 301
-            },
-            "radius": 20,
-            "end": false,
-            "start": false
-        },
-        {
-            "id": 8,
-            "name": "8*",
-            "coord": {
-                "x": 379,
-                "y": 304
-            },
-            "radius": 20,
-            "end": true,
-            "label": "WHITESPACE",
-            "start": false
-        },
-        {
-            "id": 9,
-            "name": "9",
-            "coord": {
-                "x": 218,
-                "y": 447
-            },
-            "radius": 20,
-            "end": false,
-            "start": false
-        },
-        {
-            "id": 10,
-            "name": "10",
-            "coord": {
-                "x": 392,
-                "y": 450
-            },
-            "radius": 20,
-            "end": false,
-            "start": false
-        },
-        {
-            "id": 11,
-            "name": "11",
-            "coord": {
-                "x": 526,
-                "y": 455
-            },
-            "radius": 20,
-            "end": true,
-            "label": "COMMENT",
-            "start": false
-        },
-        {
-            "id": 12,
-            "name": "12",
-            "coord": {
-                "x": 223,
-                "y": 527
-            },
-            "radius": 20,
-            "end": false,
-            "start": false
-        },
-        {
-            "id": 13,
-            "name": "13",
-            "coord": {
-                "x": 387,
-                "y": 513
-            },
-            "radius": 20,
-            "end": false,
-            "start": false
-        },
-        {
-            "id": 14,
-            "name": "14",
-            "coord": {
-                "x": 526,
-                "y": 518
-            },
-            "radius": 20,
-            "end": true,
-            "label": "COMMENT",
-            "start": false
-        },
-        {
-            "id": 15,
-            "name": "15*",
-            "coord": {
-                "x": 213,
-                "y": 355
-            },
-            "radius": 20,
-            "end": true,
-            "label": "SYMBOL",
-            "start": false
-        },
-        {
-            "id": 16,
-            "name": "16",
-            "coord": {
-                "x": 221,
-                "y": 626
-            },
-            "radius": 20,
-            "end": false,
-            "start": false
-        },
-        {
-            "id": 17,
-            "name": "17*",
-            "coord": {
-                "x": 391,
-                "y": 613
-            },
-            "radius": 20,
-            "end": true,
-            "label": "SYMBOL",
-            "start": false
-        },
-        {
-            "id": 18,
-            "name": "18",
-            "coord": {
-                "x": 392,
-                "y": 682
-            },
-            "radius": 20,
-            "end": true,
-            "label": "SYMBOL",
-            "start": false
-        },
-        {
-            "id": 19,
-            "name": "19",
-            "coord": {
-                "x": 212,
-                "y": 734
-            },
-            "radius": 20,
-            "end": true,
-            "label": "SYMBOL",
-            "start": false
-        }
-    ],
-    "transitions": [
-        {
-            "id": 0,
-            "state_src_id": 0,
-            "state_dst_id": 1,
-            "symbols": [
-                "d"
-            ]
-        },
-        {
-            "id": 1,
-            "state_src_id": 1,
-            "state_dst_id": 1,
-            "symbols": [
-                "d"
-            ]
-        },
-        {
-            "id": 2,
-            "state_src_id": 1,
-            "state_dst_id": 2,
-            "symbols": [
-                "w",
-                "s",
-                "/",
-                "*",
-                "n",
-                "="
-            ]
-        },
-        {
-            "id": 3,
-            "state_src_id": 1,
-            "state_dst_id": 3,
-            "symbols": [
-                "l",
-                "o"
-            ]
-        },
-        {
-            "id": 4,
-            "state_src_id": 0,
-            "state_dst_id": 4,
-            "symbols": [
-                "l"
-            ]
-        },
-        {
-            "id": 5,
-            "state_src_id": 4,
-            "state_dst_id": 4,
-            "symbols": [
-                "l",
-                "d"
-            ]
-        },
-        {
-            "id": 6,
-            "state_src_id": 4,
-            "state_dst_id": 5,
-            "symbols": [
-                "w",
-                "s",
-                "/",
-                "*",
-                "n",
-                "="
-            ]
-        },
-        {
-            "id": 7,
-            "state_src_id": 4,
-            "state_dst_id": 6,
-            "symbols": [
-                "o"
-            ]
-        },
-        {
-            "id": 8,
-            "state_src_id": 0,
-            "state_dst_id": 7,
-            "symbols": [
-                "w",
-                "n"
-            ]
-        },
-        {
-            "id": 9,
-            "state_src_id": 7,
-            "state_dst_id": 7,
-            "symbols": [
-                "w",
-                "n"
-            ]
-        },
-        {
-            "id": 10,
-            "state_src_id": 7,
-            "state_dst_id": 8,
-            "symbols": [
-                "d",
-                "l",
-                "s",
-                "o",
-                "/",
-                "*",
-                "="
-            ]
-        },
-        {
-            "id": 11,
-            "state_src_id": 0,
-            "state_dst_id": 9,
-            "symbols": [
-                "/"
-            ]
-        },
-        {
-            "id": 12,
-            "state_src_id": 9,
-            "state_dst_id": 10,
-            "symbols": [
-                "/"
-            ]
-        },
-        {
-            "id": 13,
-            "state_src_id": 10,
-            "state_dst_id": 10,
-            "symbols": [
-                "d",
-                "l",
-                "w",
-                "s",
-                "/",
-                "*",
-                "o",
-                "="
-            ]
-        },
-        {
-            "id": 14,
-            "state_src_id": 10,
-            "state_dst_id": 11,
-            "symbols": [
-                "n"
-            ]
-        },
-        {
-            "id": 15,
-            "state_src_id": 9,
-            "state_dst_id": 12,
-            "symbols": [
-                "*"
-            ]
-        },
-        {
-            "id": 16,
-            "state_src_id": 12,
-            "state_dst_id": 13,
-            "symbols": [
-                "*"
-            ]
-        },
-        {
-            "id": 17,
-            "state_src_id": 13,
-            "state_dst_id": 14,
-            "symbols": [
-                "/"
-            ]
-        },
-        {
-            "id": 18,
-            "state_src_id": 12,
-            "state_dst_id": 12,
-            "symbols": [
-                "d",
-                "l",
-                "w",
-                "s",
-                "/",
-                "n",
-                "o",
-                "="
-            ]
-        },
-        {
-            "id": 19,
-            "state_src_id": 13,
-            "state_dst_id": 12,
-            "symbols": [
-                "d",
-                "l",
-                "w",
-                "s",
-                "*",
-                "n",
-                "o",
-                "="
-            ]
-        },
-        {
-            "id": 20,
-            "state_src_id": 9,
-            "state_dst_id": 15,
-            "symbols": [
-                "d",
-                "l",
-                "w",
-                "s",
-                "n",
-                "o",
-                "="
-            ]
-        },
-        {
-            "id": 21,
-            "state_src_id": 0,
-            "state_dst_id": 6,
-            "symbols": [
-                "o"
-            ]
-        },
-        {
-            "id": 22,
-            "state_src_id": 0,
-            "state_dst_id": 16,
-            "symbols": [
-                "="
-            ]
-        },
-        {
-            "id": 23,
-            "state_src_id": 16,
-            "state_dst_id": 17,
-            "symbols": [
-                "d",
-                "l",
-                "w",
-                "s",
-                "/",
-                "*",
-                "n",
-                "o"
-            ]
-        },
-        {
-            "id": 24,
-            "state_src_id": 16,
-            "state_dst_id": 18,
-            "symbols": [
-                "="
-            ]
-        },
-        {
-            "id": 25,
-            "state_src_id": 0,
-            "state_dst_id": 19,
-            "symbols": [
-                "s",
-                "*"
-            ]
-        }
-    ]
+      ]
+    },
+    {
+      "id": 29,
+      "state_src_id": 19,
+      "state_dst_id": 22,
+      "symbols": [
+        "/"
+      ]
+    },
+    {
+      "id": 30,
+      "state_src_id": 0,
+      "state_dst_id": 23,
+      "symbols": [
+        "s"
+      ]
+    },
+    {
+      "id": 31,
+      "state_src_id": 0,
+      "state_dst_id": 24,
+      "symbols": [
+        "z"
+      ]
+    }
+  ]
 }

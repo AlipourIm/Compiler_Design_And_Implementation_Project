@@ -120,6 +120,16 @@ function drawState(ctx, state) {
 			state.coord.x - state.radius,
 			state.coord.y);
 	}
+
+	if (state.end) {
+		ctx.font = "15px Georgia";
+		ctx.textAlign = "left";
+		ctx.textBaseline = "middle";
+		ctx.fillStyle = "gray";
+		ctx.fillText(" " + state.label,
+			state.coord.x + state.radius * 10 / 8,
+			state.coord.y);
+	}
 }
 
 function drawStateID(ctx, state) {

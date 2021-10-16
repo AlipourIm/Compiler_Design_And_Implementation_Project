@@ -9,6 +9,7 @@ def get_chars_by_symbol(symbl):
         "/": "/",
         "*": "*",
         "n": "\n",
+        "z": "\0",
         "=": "=",
         "w": " \r\t\v\f"
     }
