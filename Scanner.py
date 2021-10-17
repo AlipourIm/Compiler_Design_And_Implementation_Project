@@ -9,11 +9,12 @@ class Scanner:
         self.lexeme = ""
         self.buffer_pointer = 0
         self.buffer = ""
-        self.line = 0
+        self.line = 1
         self.file = open("input.txt", "r")
         self.final_states, self.final_state_message, self.look_ahead_states = Scanner.final_state_initializer()
         self.dfa_table = Scanner.dfa_initializer()
         self.buffer_initializer()
+        print(self.look_ahead_character)
 
     @staticmethod
     def dfa_initializer():
@@ -73,7 +74,14 @@ class Scanner:
         return self.file.read(1)
 
     def get_next_token(self):
+        lexeme, message = self.find_next_token()
+
+        return lexeme, message
+
+    def find_next_token(self):
         while not (self.current_state in self.final_states):
+            if self.buffer[self.buffer_pointer] == "\n":
+                self.line += 1
             self.lexeme += self.buffer[self.buffer_pointer]
             self.current_state = self.dfa_table[self.current_state][ord(self.buffer[self.buffer_pointer])]
             self.buffer_pointer += 1
@@ -84,11 +92,13 @@ class Scanner:
         self.current_state = 0
         self.lexeme = ""
         if current_state in self.look_ahead_states:
-            if self.buffer_pointer != self.buffer_length-1:
+            if self.buffer_pointer != self.buffer_length - 1:
                 self.buffer_pointer -= 1
             else:
-                self.lexeme += self.look_ahead_character
+                self.lexeme += "" + self.look_ahead_character
                 self.current_state = self.dfa_table[self.current_state][ord(self.look_ahead_character)]
+            if self.buffer[self.buffer_pointer] == "\n":
+                self.line -= 1
             lexeme = lexeme[:-1]
 
         return lexeme, self.final_state_message[self.final_states.index(current_state)]
@@ -96,10 +106,9 @@ class Scanner:
 
 scanner = Scanner()
 
-i = 0
-while i < 10:
-    i += 1
+while True:
     token = scanner.get_next_token()
     print(token)
+    print(scanner.line)
     if token[1] == "EOF":
         break
