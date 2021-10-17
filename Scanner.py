@@ -2,14 +2,18 @@ import os
 
 
 class Scanner:
-    def __init__(self):
+    def __init__(self, buffer_length=32):
+        self.buffer_length = buffer_length
+        self.look_ahead_character = ""
+        self.current_state = 0
+        self.lexeme = ""
         self.buffer_pointer = 0
         self.buffer = ""
         self.line = 0
         self.file = open("input.txt", "r")
         self.final_states, self.final_state_message, self.look_ahead_states = Scanner.final_state_initializer()
         self.dfa_table = Scanner.dfa_initializer()
-        self.refill_buffer()
+        self.buffer_initializer()
 
     @staticmethod
     def dfa_initializer():
@@ -43,8 +47,16 @@ class Scanner:
             return final_states, final_states_message, look_ahead_states
 
     def refill_buffer(self):
-        self.buffer = "" + self.file.read(32)
-        if len(self.buffer) < 32:
+        self.look_ahead_character += "" + self.buffer[len(self.buffer) - 1]
+        self.buffer = "" + self.file.read(self.buffer_length)
+        if len(self.buffer) < self.buffer_length:
+            self.buffer = self.buffer + "\0"
+        self.buffer_pointer = 0
+
+    def buffer_initializer(self):
+        self.buffer = "" + self.file.read(self.buffer_length)
+        self.look_ahead_character += "" + self.buffer[len(self.buffer) - 1]
+        if len(self.buffer) < self.buffer_length:
             self.buffer = self.buffer + "\0"
         self.buffer_pointer = 0
 
@@ -61,23 +73,32 @@ class Scanner:
         return self.file.read(1)
 
     def get_next_token(self):
-        current_state = 0
-        lexeme = ""
-        while not (current_state in self.look_ahead_states or current_state in self.final_states):
-            lexeme += self.buffer[self.buffer_pointer]
-            current_state = self.dfa_table[current_state][ord(self.buffer[self.buffer_pointer])]
+        while not (self.current_state in self.final_states):
+            self.lexeme += self.buffer[self.buffer_pointer]
+            self.current_state = self.dfa_table[self.current_state][ord(self.buffer[self.buffer_pointer])]
             self.buffer_pointer += 1
-            if self.buffer_pointer == 32:
-                self.refill_buffer()  # Buffer has EOF, my idea: use a flag.
-        if current_state in self.look_ahead_states:  # How to look ahead?
-            self.buffer_pointer -= 1
+            if self.buffer_pointer == self.buffer_length:
+                self.refill_buffer()
+        current_state = self.current_state
+        lexeme = self.lexeme
+        self.current_state = 0
+        self.lexeme = ""
+        if current_state in self.look_ahead_states:
+            if self.buffer_pointer != self.buffer_length-1:
+                self.buffer_pointer -= 1
+            else:
+                self.lexeme += self.look_ahead_character
+                self.current_state = self.dfa_table[self.current_state][ord(self.look_ahead_character)]
             lexeme = lexeme[:-1]
+
         return lexeme, self.final_state_message[self.final_states.index(current_state)]
 
 
 scanner = Scanner()
 
-while True:
+i = 0
+while i < 10:
+    i += 1
     token = scanner.get_next_token()
     print(token)
     if token[1] == "EOF":
