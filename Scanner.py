@@ -1,10 +1,12 @@
 import os
 
+from ErrorHandler import ErrorHandler
+from SymbolTable import SymbolTable
+
 
 class Scanner:
     def __init__(self, buffer_length=32):
         self.buffer_length = buffer_length
-        self.look_ahead_character = ""
         self.current_state = 0
         self.lexeme = ""
         self.buffer_pointer = 0
@@ -66,6 +68,10 @@ class Scanner:
 
     def get_next_token(self):
         lexeme, message = self.find_next_token()
+        if "ERR" in message:
+            ErrorHandler.print_lexical_error(self.line, lexeme, message)
+        elif "SYMBOL" in message:
+            SymbolTable.add_symbol(lexeme)
 
         return lexeme, message
 
@@ -96,9 +102,9 @@ class Scanner:
 
 
 scanner = Scanner()
-
+SymbolTable.print_symbols()
 while True:
     token = scanner.get_next_token()
-    print(token)
+    print(str(scanner.line) + ".\t" + str(token))
     if token[1] == "EOF":
         break
