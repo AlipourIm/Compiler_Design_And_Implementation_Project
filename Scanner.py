@@ -14,7 +14,6 @@ class Scanner:
         self.final_states, self.final_state_message, self.look_ahead_states = Scanner.final_state_initializer()
         self.dfa_table = Scanner.dfa_initializer()
         self.buffer_initializer()
-        print(self.look_ahead_character)
 
     @staticmethod
     def dfa_initializer():
@@ -109,6 +108,5 @@ scanner = Scanner()
 while True:
     token = scanner.get_next_token()
     print(token)
-    print(scanner.line)
     if token[1] == "EOF":
         break
