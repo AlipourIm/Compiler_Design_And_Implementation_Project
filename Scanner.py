@@ -13,7 +13,7 @@ class Scanner:
         self.file = open("input.txt", "r")
         self.final_states, self.final_state_message, self.look_ahead_states = Scanner.final_state_initializer()
         self.dfa_table = Scanner.dfa_initializer()
-        self.buffer_initializer()
+        self.refill_buffer()
 
     @staticmethod
     def dfa_initializer():
@@ -47,15 +47,7 @@ class Scanner:
             return final_states, final_states_message, look_ahead_states
 
     def refill_buffer(self):
-        self.look_ahead_character += "" + self.buffer[len(self.buffer) - 1]
         self.buffer = "" + self.file.read(self.buffer_length)
-        if len(self.buffer) < self.buffer_length:
-            self.buffer = self.buffer + "\0"
-        self.buffer_pointer = 0
-
-    def buffer_initializer(self):
-        self.buffer = "" + self.file.read(self.buffer_length)
-        self.look_ahead_character += "" + self.buffer[len(self.buffer) - 1]
         if len(self.buffer) < self.buffer_length:
             self.buffer = self.buffer + "\0"
         self.buffer_pointer = 0
@@ -86,21 +78,21 @@ class Scanner:
             self.buffer_pointer += 1
             if self.buffer_pointer == self.buffer_length:
                 self.refill_buffer()
-        current_state = self.current_state
-        lexeme = self.lexeme
+        tmp_current_state = self.current_state
+        tmp_lexeme = self.lexeme
         self.current_state = 0
         self.lexeme = ""
-        if current_state in self.look_ahead_states:
+        if tmp_current_state in self.look_ahead_states:
             if self.buffer_pointer != self.buffer_length - 1:
                 self.buffer_pointer -= 1
             else:
-                self.lexeme += "" + self.look_ahead_character
-                self.current_state = self.dfa_table[self.current_state][ord(self.look_ahead_character)]
+                self.lexeme += "" + tmp_lexeme[len(tmp_lexeme) - 1]
+                self.current_state = self.dfa_table[self.current_state][ord(self.lexeme)]
             if self.buffer[self.buffer_pointer] == "\n":
                 self.line -= 1
-            lexeme = lexeme[:-1]
+            tmp_lexeme = tmp_lexeme[:-1]
 
-        return lexeme, self.final_state_message[self.final_states.index(current_state)]
+        return tmp_lexeme, self.final_state_message[self.final_states.index(tmp_current_state)]
 
 
 scanner = Scanner()

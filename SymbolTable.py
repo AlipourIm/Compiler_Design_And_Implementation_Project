@@ -13,8 +13,8 @@ class SymbolTable:
 
     @staticmethod
     def add_symbol(symbol):
-        if not (symbol in SymbolTable.symbol_table):
-            SymbolTable.append(symbol)
+        if symbol not in SymbolTable.symbol_table:
+            SymbolTable.symbol_table.append(symbol)
 
     @staticmethod
     def print_symbols():
