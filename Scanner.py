@@ -70,7 +70,7 @@ class Scanner:
         lexeme, message = self.find_next_token()
         if "ERR" in message:
             ErrorHandler.print_lexical_error(self.line, lexeme, message)
-        elif "SYMBOL" in message:
+        elif "KEYWORD/ID" in message:
             SymbolTable.add_symbol(lexeme)
 
         return lexeme, message
@@ -102,9 +102,9 @@ class Scanner:
 
 
 scanner = Scanner()
-SymbolTable.print_symbols()
 while True:
     token = scanner.get_next_token()
     print(str(scanner.line) + ".\t" + str(token))
     if token[1] == "EOF":
         break
+SymbolTable.print_symbols()
