@@ -9,7 +9,7 @@ class ErrorHandler:
 
     @staticmethod
     def print_lexical_error(line, lexeme, message):
-        ErrorHandler.f.write(str(line) + ".\t(" + lexeme + " " + message + ")\n")
+        ErrorHandler.f.write(str(line) + ".\t(" + lexeme + ", " + message + ")\n")
 
     @staticmethod
     def close_file():
