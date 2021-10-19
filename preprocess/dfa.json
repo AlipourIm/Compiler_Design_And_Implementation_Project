@@ -552,7 +552,6 @@
         "/",
         "*",
         "n",
-        "o",
         "z"
       ]
     },
@@ -600,8 +599,7 @@
         "*",
         "n",
         "=",
-        "z",
-        "o"
+        "z"
       ]
     },
     {
@@ -626,6 +624,22 @@
       "state_dst_id": 24,
       "symbols": [
         "z"
+      ]
+    },
+    {
+      "id": 32,
+      "state_src_id": 16,
+      "state_dst_id": 6,
+      "symbols": [
+        "o"
+      ]
+    },
+    {
+      "id": 33,
+      "state_src_id": 19,
+      "state_dst_id": 6,
+      "symbols": [
+        "o"
       ]
     }
   ]
