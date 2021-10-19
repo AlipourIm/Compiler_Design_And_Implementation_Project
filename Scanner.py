@@ -92,6 +92,7 @@ class Scanner:
             self.buffer_pointer += 1
             if self.buffer_pointer == self.buffer_length:
                 self.refill_buffer()
+
         tmp_current_state = self.current_state
         tmp_lexeme = self.lexeme
         self.current_state = 0

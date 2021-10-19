@@ -22,10 +22,16 @@ class Parser:
                 self.line = token[2]
                 self.tokens_in_line = str(self.line) + ".\t"
 
-            self.tokens_in_line += "(" + token[1] + ", " + token[0] + ") "
-            if token[1] == "EOF":
+            if token[1] != "EOF":
+                self.tokens_in_line += "(" + token[1] + ", " + token[0] + ") "
+            else:
+                # flush last line if it includes any token other than EOF
+                if self.tokens_in_line[-1] != "\t":
+                    self.f.write(self.tokens_in_line + "\n")
+                # flush ErrorHandler for last line
                 ErrorHandler.flush_lexical_error()
                 break
+
         SymbolTable.print_symbols()
 
         self.f.close()
