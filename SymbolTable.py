@@ -1,5 +1,5 @@
 class SymbolTable:
-    f = open("symbol-table.txt", "w")
+    f = open("symbol_table.txt", "w")
     symbol_table = ["if", "else", "void", "int", "repeat", "break", "until", "return"]
 
     def __init__(self):

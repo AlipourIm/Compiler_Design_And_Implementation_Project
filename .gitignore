@@ -360,6 +360,6 @@ cython_debug/
 # End of https://www.toptal.com/developers/gitignore/api/python,pycharm+all,pycharm+iml,pycharm
 
 /input.txt
-/symbol-table.txt
+/symbol_table.txt
 /lexical_errors.txt
 /tokens.txt
