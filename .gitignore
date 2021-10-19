@@ -362,3 +362,4 @@ cython_debug/
 /input.txt
 /symbol-table.txt
 /lexical_errors.txt
+/tokens.txt

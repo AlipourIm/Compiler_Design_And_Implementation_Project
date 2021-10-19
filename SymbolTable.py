@@ -17,6 +17,10 @@ class SymbolTable:
             SymbolTable.symbol_table.append(symbol)
 
     @staticmethod
+    def get_token_type(symbol): # ID or KEYWORD?
+        return "ID" if (SymbolTable.symbol_table.index(symbol) <= 7) else "KEYWORD"
+
+    @staticmethod
     def print_symbols():
         for i in range(len(SymbolTable.symbol_table)):
             SymbolTable.f.write(str(i + 1) + ".\t" + SymbolTable.symbol_table[i] + "\n")

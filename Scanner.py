@@ -72,12 +72,13 @@ class Scanner:
             lexeme, message, line = self.find_next_token()
 
             if "ERR" in message:
-                ErrorHandler.print_lexical_error(self.line, lexeme, message)
+                ErrorHandler.print_lexical_error(line, lexeme, message)
                 continue
             elif "WHITESPACE" in message or "COMMENT" in message:
                 continue
             elif "KEYWORD/ID" in message:
                 SymbolTable.add_symbol(lexeme)
+                message = message.replace("KEYWORD/ID", SymbolTable.get_token_type(lexeme))
 
             return lexeme, message, line
 
