@@ -1,3 +1,4 @@
+from ErrorHandler import ErrorHandler
 from Scanner import Scanner
 from SymbolTable import SymbolTable
 
@@ -7,22 +8,24 @@ class Parser:
     def __init__(self):
         self.f = open("tokens.txt", "w")
         self.tokens = []
+        self.line = -1
+        self.tokens_in_line = ""
 
     def main(self):
         scanner = Scanner()
-        line = -1
-        tokens_in_line = ""
 
         while True:
             token = scanner.get_next_token()
+            if self.line != token[2]:
+                if self.line != -1:
+                    self.f.write(self.tokens_in_line + "\n")
+                self.line = token[2]
+                self.tokens_in_line = str(self.line) + ".\t"
 
-            if line != token[2]:
-                if line != -1:
-                    self.f.write(tokens_in_line + "\n")
-                line = token[2]
-                tokens_in_line = str(line) + ".\t"
-
-            tokens_in_line += "(" + token[1] + ", " + token[0] + ") "
+            self.tokens_in_line += "(" + token[1] + ", " + token[0] + ") "
             if token[1] == "EOF":
+                ErrorHandler.flush_lexical_error()
                 break
         SymbolTable.print_symbols()
+
+        self.f.close()

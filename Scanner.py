@@ -72,7 +72,7 @@ class Scanner:
             lexeme, message, line = self.find_next_token()
 
             if "ERR" in message:
-                ErrorHandler.print_lexical_error(line, lexeme, message)
+                ErrorHandler.catch_lexical_error(line, lexeme, message)
                 continue
             elif "WHITESPACE" in message or "COMMENT" in message:
                 continue

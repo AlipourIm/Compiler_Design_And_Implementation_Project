@@ -18,7 +18,7 @@ class SymbolTable:
 
     @staticmethod
     def get_token_type(symbol): # ID or KEYWORD?
-        return "ID" if (SymbolTable.symbol_table.index(symbol) <= 7) else "KEYWORD"
+        return "KEYWORD" if (SymbolTable.symbol_table.index(symbol) <= 7) else "ID"
 
     @staticmethod
     def print_symbols():
