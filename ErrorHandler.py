@@ -10,9 +10,9 @@ class ErrorHandler:
     @staticmethod
     def print_lexical_error(line, lexeme, message):
         if "comment" not in message:
-            ErrorHandler.f.write(str(line) + ".\t(" + lexeme + ", " + message + ")\n")
+            ErrorHandler.f.write(str(line) + ".\t(" + lexeme + ", " + message.replace("ERR: ", "") + ")\n")
         else:
-            ErrorHandler.f.write(str(line) + ".\t(" + lexeme[0:7] + "..., " + message + ")\n")
+            ErrorHandler.f.write(str(line) + ".\t(" + lexeme[0:7] + "..., " + message.replace("ERR: ", "") + ")\n")
 
     @staticmethod
     def close_file():
