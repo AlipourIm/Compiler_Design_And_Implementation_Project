@@ -1,4 +1,4 @@
-from DFA_Table import DFA_Table
+from DFA import DFA
 from ErrorHandler import ErrorHandler
 from SymbolTable import SymbolTable
 
@@ -13,17 +13,17 @@ class Scanner:
         self.line = 1
         self.file = open("input.txt", "r")
         self.final_states, self.final_state_message, self.look_ahead_states = Scanner.final_state_initializer()
-        self.dfa_table = DFA_Table.dfa_table
+        self.dfa_table = DFA.dfa_table
         self.refill_buffer()
 
     @staticmethod
     def final_state_initializer():
         final_states = []
         final_states_message = []
-        for i in DFA_Table.final_states:
+        for i in DFA.final_states:
             final_states.append(i[0])
             final_states_message.append(i[1])
-        return final_states, final_states_message, DFA_Table.look_ahead_states
+        return final_states, final_states_message, DFA.look_ahead_states
 
     def refill_buffer(self):
         self.buffer = "" + self.file.read(self.buffer_length)

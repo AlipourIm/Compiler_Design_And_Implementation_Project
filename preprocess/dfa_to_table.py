@@ -86,8 +86,8 @@ if __name__ == "__main__":
         for s in DFA_Table:
             f.write(str(s) + "\n")
 
-    with open("../DFA_Table.py", "w") as f:
-        f.write("class DFA_Table:\n\tdfa_table = ")
+    with open("../DFA.py", "w") as f:
+        f.write("class DFA:\n\tdfa_table = ")
         f.write(str(DFA_Table))
         f.write("\n\tfinal_states = ")
         f.write(str(final_states))
