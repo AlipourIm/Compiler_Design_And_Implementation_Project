@@ -1,5 +1,6 @@
 import os
 
+from DFA_Table import DFA_Table
 from ErrorHandler import ErrorHandler
 from SymbolTable import SymbolTable
 
@@ -14,39 +15,17 @@ class Scanner:
         self.line = 1
         self.file = open("input.txt", "r")
         self.final_states, self.final_state_message, self.look_ahead_states = Scanner.final_state_initializer()
-        self.dfa_table = Scanner.dfa_initializer()
+        self.dfa_table = DFA_Table.dfa_table
         self.refill_buffer()
-
-    @staticmethod
-    def dfa_initializer():
-        dfa_table = []
-        with open(os.path.join(os.path.dirname(__file__), "preprocess/DFA_Table.txt"), "r") as f:
-            number_of_states = 0
-            for line in f:
-                dfa_table.append(line.strip('][').replace('"', '').split(','))
-                number_of_states += 1
-        for i in range(number_of_states):
-            dfa_table[i][255] = dfa_table[i][255].replace("]\n", "")
-        f.close()
-        dfa_table = [list(map(int, i)) for i in dfa_table]
-        return dfa_table
 
     @staticmethod
     def final_state_initializer():
         final_states = []
         final_states_message = []
-        with open(os.path.join(os.path.dirname(__file__), "preprocess/final_states.txt"), "r") as f:
-            for line in f:
-                items = line.split(", '")
-                items[0] = int(items[0].replace("[", ""))
-                items[1] = items[1].replace("']\n", "")
-                final_states.append(int(items[0]))
-                final_states_message.append(items[1])
-            f.close()
-        with open(os.path.join(os.path.dirname(__file__), "preprocess/look_ahead_states.txt"), "r") as f:
-            look_ahead_states = list(map(int, f.readline().split()))
-            f.close()
-            return final_states, final_states_message, look_ahead_states
+        for i in DFA_Table.final_states:
+            final_states.append(i[0])
+            final_states_message.append(i[1])
+        return final_states, final_states_message, DFA_Table.look_ahead_states
 
     def refill_buffer(self):
         self.buffer = "" + self.file.read(self.buffer_length)

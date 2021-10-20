@@ -57,6 +57,9 @@ if __name__ == "__main__":
     print(final_states)
     print(lookahead_states)
 
+    # Closing file
+    f.close()
+
     with open('final_states.txt', 'w') as file2:
         for state in final_states:
             file2.write(str(state) + "\n")
@@ -83,11 +86,19 @@ if __name__ == "__main__":
         for s in DFA_Table:
             f.write(str(s) + "\n")
 
+    with open("../DFA_Table.py", "w") as f:
+        f.write("class DFA_Table:\n\tdfa_table = ")
+        f.write(str(DFA_Table))
+        f.write("\n\tfinal_states = ")
+        f.write(str(final_states))
+        f.write("\n\tlook_ahead_states = ")
+        f.write(str(lookahead_states))
+        f.write("\n")
+
     # Restore from file
     DFA_Table = []
     with open("DFA_Table.txt", "r") as f:
         for line in f:
             DFA_Table.append(line.strip('][').replace('"', '').split(','))
 
-    # Closing file
-    f.close()
+
