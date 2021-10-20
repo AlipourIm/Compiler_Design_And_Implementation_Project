@@ -1,5 +1,3 @@
-import os
-
 from DFA_Table import DFA_Table
 from ErrorHandler import ErrorHandler
 from SymbolTable import SymbolTable
