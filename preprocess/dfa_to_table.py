@@ -9,7 +9,7 @@ def get_chars_by_symbol(symbl):
         "/": "/",
         "*": "*",
         "n": "\n",
-        "z": "\0",
+        "z": "Ā",
         "=": "=",
         "w": " \r\t\v\f"
     }
@@ -19,7 +19,7 @@ def get_chars_by_symbol(symbl):
         return symbol_dict[symbl]
     else:
         chars = ""
-        for i in range(256):
+        for i in range(257):
             if chr(i) not in valid_chars:
                 chars += chr(i)
         return chars
@@ -33,7 +33,7 @@ if __name__ == "__main__":
 
     # Create 2d-array for DFA table
     number_of_states = len(data["states"])
-    number_of_chars = 256
+    number_of_chars = 257
     DFA_Table = [[-1 for i in range(number_of_chars)] for j in range(number_of_states)]
 
     # Print alphabet
@@ -100,5 +100,3 @@ if __name__ == "__main__":
     with open("DFA_Table.txt", "r") as f:
         for line in f:
             DFA_Table.append(line.strip('][').replace('"', '').split(','))
-
-
