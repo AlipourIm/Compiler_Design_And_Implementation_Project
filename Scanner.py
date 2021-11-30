@@ -28,7 +28,7 @@ class Scanner:
     def refill_buffer(self):
         self.buffer = "" + self.file.read(self.buffer_length)
         if len(self.buffer) < self.buffer_length:
-            self.buffer = self.buffer + "\0"
+            self.buffer = self.buffer + "Ā"
         self.buffer_pointer = 0
 
     def get_line(self):

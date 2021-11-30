@@ -9,7 +9,7 @@ def get_chars_by_symbol(symbl):
         "/": "/",
         "*": "*",
         "n": "\n",
-        "z": "\0",
+        "z": "Ā",
         "=": "=",
         "w": " \r\t\v\f"
     }
@@ -19,7 +19,7 @@ def get_chars_by_symbol(symbl):
         return symbol_dict[symbl]
     else:
         chars = ""
-        for i in range(256):
+        for i in range(257):
             if chr(i) not in valid_chars:
                 chars += chr(i)
         return chars
@@ -33,7 +33,7 @@ if __name__ == "__main__":
 
     # Create 2d-array for DFA table
     number_of_states = len(data["states"])
-    number_of_chars = 256
+    number_of_chars = 257
     DFA_Table = [[-1 for i in range(number_of_chars)] for j in range(number_of_states)]
 
     # Print alphabet
@@ -60,13 +60,13 @@ if __name__ == "__main__":
     # Closing file
     f.close()
 
-    with open('final_states.txt', 'w') as file2:
-        for state in final_states:
-            file2.write(str(state) + "\n")
-    with open('look_ahead_states.txt', 'w') as file3:
-        for state in lookahead_states:
-            file3.write('%s ' % state)
-        file3.close()
+    # with open('final_states.txt', 'w') as file2:
+    #     for state in final_states:
+    #         file2.write(str(state) + "\n")
+    # with open('look_ahead_states.txt', 'w') as file3:
+    #     for state in lookahead_states:
+    #         file3.write('%s ' % state)
+    #     file3.close()
 
     # Iterate through edges
     for edge in data["transitions"]:
@@ -82,9 +82,9 @@ if __name__ == "__main__":
         # print("\b\b)")
 
     # Save in file
-    with open("DFA_Table.txt", "w") as f:
-        for s in DFA_Table:
-            f.write(str(s) + "\n")
+    # with open("DFA_Table.txt", "w") as f:
+    #     for s in DFA_Table:
+    #         f.write(str(s) + "\n")
 
     with open("../DFA.py", "w") as f:
         f.write("class DFA:\n\tdfa_table = ")
@@ -96,9 +96,7 @@ if __name__ == "__main__":
         f.write("\n")
 
     # Restore from file
-    DFA_Table = []
-    with open("DFA_Table.txt", "r") as f:
-        for line in f:
-            DFA_Table.append(line.strip('][').replace('"', '').split(','))
-
-
+    # DFA_Table = []
+    # with open("DFA_Table.txt", "r") as f:
+    #     for line in f:
+    #         DFA_Table.append(line.strip('][').replace('"', '').split(','))

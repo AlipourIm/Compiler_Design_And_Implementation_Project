@@ -519,7 +519,6 @@
         "w",
         "s",
         "n",
-        "o",
         "=",
         "z"
       ]
@@ -637,6 +636,14 @@
     {
       "id": 33,
       "state_src_id": 19,
+      "state_dst_id": 6,
+      "symbols": [
+        "o"
+      ]
+    },
+    {
+      "id": 34,
+      "state_src_id": 9,
       "state_dst_id": 6,
       "symbols": [
         "o"
