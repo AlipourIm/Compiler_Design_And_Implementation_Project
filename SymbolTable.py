@@ -1,6 +1,6 @@
 class SymbolTable:
     f = open("symbol_table.txt", "w")
-    symbol_table = ["if", "else", "void", "int", "repeat", "break", "until", "return"]
+    symbol_table = ["if", "else", "void", "int", "repeat", "break", "until", "return", "endif"]
 
     def __init__(self):
         pass
@@ -17,8 +17,8 @@ class SymbolTable:
             SymbolTable.symbol_table.append(symbol)
 
     @staticmethod
-    def get_token_type(symbol): # ID or KEYWORD?
-        return "KEYWORD" if (SymbolTable.symbol_table.index(symbol) <= 7) else "ID"
+    def get_token_type(symbol):  # ID or KEYWORD?
+        return "KEYWORD" if (SymbolTable.symbol_table.index(symbol) <= 8) else "ID"
 
     @staticmethod
     def print_symbols():
