@@ -51,11 +51,11 @@ for i in range(len(predict)):
             predict[i][j] = '$'
 
 with open("../../FirstFollowPredict.py", "w") as f:
-    f.write("class first_follow_predict:\n\tfirst = ")
+    f.write("class first_follow_predict:\n\tfirsts = ")
     f.write(str(first))
-    f.write("\n\tfollow = ")
+    f.write("\n\tfollows = ")
     f.write(str(follow))
-    f.write("\n\tpredict = ")
+    f.write("\n\tpredicts = ")
     f.write(str(predict))
     f.write("\n\tnon_terminals = ")
     f.write(str(non_terminals))
