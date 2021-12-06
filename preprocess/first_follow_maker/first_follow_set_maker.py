@@ -32,6 +32,7 @@ first = []
 follow = []
 predict = []
 non_terminals = []
+terminals = ['ID', ';', '[', 'NUM', ']', '(', ')', 'int', 'void', ',', '{', '}', 'break', 'if', 'endif', 'else', 'repeat', 'until', 'return', '=', '<', '==', '+', '-', '*', '$']
 for i in range(1, len(first_table)):
     first.append(first_table[i][1].split())
     follow.append(follow_table[i][1].split())
@@ -59,4 +60,6 @@ with open("../../FirstFollowPredict.py", "w") as f:
     f.write(str(predict))
     f.write("\n\tnon_terminals = ")
     f.write(str(non_terminals))
+    f.write("\n\tterminals = ")
+    f.write(str(terminals))
     f.write("\n")
