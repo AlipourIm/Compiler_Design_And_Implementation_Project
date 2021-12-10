@@ -32,7 +32,9 @@ first = []
 follow = []
 predict = []
 non_terminals = []
-terminals = ['ID', ';', '[', 'NUM', ']', '(', ')', 'int', 'void', ',', '{', '}', 'break', 'if', 'endif', 'else', 'repeat', 'until', 'return', '=', '<', '==', '+', '-', '*', '$']
+# terminals = ['ID', ';', '[', 'NUM', ']', '(', ')', 'int', 'void', ',', '{', '}', 'break', 'if', 'endif', 'else',
+# 'repeat', 'until', 'return', '=', '<', '==', '+', '-', '*', '$']
+
 for i in range(1, len(first_table)):
     first.append(first_table[i][1].split())
     follow.append(follow_table[i][1].split())
@@ -50,6 +52,9 @@ for i in range(len(predict)):
     for j in range(len(predict[i])):
         if predict[i][j] == '┤':
             predict[i][j] = '$'
+
+terminals = sorted(set().union(*first).union(*follow))
+terminals.remove('ε')
 
 with open("../../FirstFollowPredict.py", "w") as f:
     f.write("class first_follow_predict:\n\tfirsts = ")
