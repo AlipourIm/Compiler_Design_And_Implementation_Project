@@ -38,14 +38,13 @@ class ErrorHandler:
 
     @staticmethod
     def catch_syntax_error(line, message):
-        pass  # To do
+        ErrorHandler.number_of_syntax_errors += 1
+        ErrorHandler.lexical_error_file.write("#" + str(line) + " : " + message)
 
     @staticmethod
     def flush_syntax_error():
         if ErrorHandler.number_of_syntax_errors == 0:
             ErrorHandler.syntax_error_file.write("There is no syntax error.")
-        else:
-            pass  # To do
         ErrorHandler.close_file(ErrorHandler.syntax_error_file)
 
     @staticmethod
