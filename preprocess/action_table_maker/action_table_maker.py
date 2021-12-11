@@ -50,6 +50,7 @@ for [grammar_id, grammar_state] in grammars_states:
     for t in ffp.predicts[grammar_id]:
         if symbol in ffp.terminals:
             action_table[nt_index][ffp.terminals.index(t)] = ["get"
+                , symbol
                 , grammar_state]
         elif symbol in ffp.non_terminals:
             action_table[nt_index][ffp.terminals.index(t)] = ["go"
@@ -60,12 +61,17 @@ for [grammar_id, grammar_state] in grammars_states:
                 , "ε"
                 , grammar_state]
 
+for nt_index in range(len(ffp.non_terminals)):
+    for terminal_index in range(len(ffp.follows[nt_index])):
+        if len(action_table[nt_index][terminal_index]) == 0:
+            action_table[nt_index][terminal_index] = ['sync']
+
 ######################################################################
 # fill action table for final state of each non-terminal, based on its follow set
 ######################################################################
 for nt_index in range(len(ffp.non_terminals)):
-    for t in ffp.follows[nt_index]:
-    # for t in ffp.terminals:
+    # for t in ffp.follows[nt_index]:
+    for t in ffp.terminals:
         action_table[nt_index + n][ffp.terminals.index(t)] = ['ACCEPT' if nt_index == 0 else 'return']
 
 ######################################################################
@@ -75,20 +81,21 @@ for e in edges:
     source, target, label = e
 
     if label in ffp.terminals:
-        action_table[source][ffp.terminals.index(label)] = ["get", target]
+        action_table[source][ffp.terminals.index(label)] = ["get", label, target]
 
     elif label in ffp.non_terminals:
         nt_index = ffp.non_terminals.index(label)
-        for t in ffp.firsts[nt_index]:
+        # for t in ffp.firsts[nt_index]:
+        for t in ffp.terminals:
             if t != 'ε':
                 action_table[source][ffp.terminals.index(t)] = ["go"
                     , ffp.non_terminals.index(label)
                     , target]
-            else:
-                for t2 in ffp.follows[nt_index]:
-                    action_table[source][ffp.terminals.index(t2)] = ["go"
-                        , ffp.non_terminals.index(label)
-                        , target]
+            # else:
+            #     for t2 in ffp.follows[nt_index]:
+            #         action_table[source][ffp.terminals.index(t2)] = ["go"
+            #             , ffp.non_terminals.index(label)
+            #             , target]
 
 ######################################################################
 

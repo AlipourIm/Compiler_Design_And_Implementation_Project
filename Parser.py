@@ -26,14 +26,14 @@ class Parser:
             token = scanner.get_next_token()
             lexeme, message, line = token
 
+            self.update_line(token)
+
             terminal = lexeme
             if message in ['NUM', 'ID', '$']:
                 terminal = message
-
-            print("_________\nNew Terminal: ", terminal)
             terminal_id = at.terminals.index(terminal)
 
-            # self.print_parse_tree()
+            print("_________\nNew Terminal: ", terminal)
 
             action = at.table[self.current_node_id][terminal_id]
             self.print_action(terminal, terminal_id, action)
@@ -41,12 +41,15 @@ class Parser:
             if self.current_node_id == 46:
                 print(FirstFollowPredict.FirstFollowPredict.follows[1])
 
-            while action[0] in ['go', 'return']:
-                if action[0] == 'return':
+            while action[0] in ['go', 'return', 'sync']:
+
+                if action[0] in ['return', 'sync']:
+
+                    if action[0] == 'sync':
+                        ErrorHandler.catch_syntax_error(self.line, f'syntax error, missing {self.current_node.name}')
+
                     print('...conducting a return state')
                     self.current_node_id = self.stack.pop()
-                    # while self.current_node.name == 'epsilon':
-                    #     self.current_node = self.current_node.parent
                     self.current_node = self.current_node.parent
 
                     print("stack after return = ", self.stack)
@@ -54,7 +57,7 @@ class Parser:
                     action = at.table[self.current_node_id][terminal_id]
                     self.print_action(terminal, terminal_id, action)
 
-                if action[0] == 'go':
+                elif action[0] == 'go':
                     node_str = 'epsilon' if action[1] == 'ε' else at.non_terminals[action[1]].replace('_', '-')
                     self.current_node = Node(node_str, parent=self.current_node)
                     # self.print_parse_tree()
@@ -71,22 +74,22 @@ class Parser:
 
             if action[0] == 'get':
                 Node(f'({message}, {lexeme})', parent=self.current_node)
+
+                if action[1] != terminal:
+                    ErrorHandler.catch_syntax_error(self.line, f'syntax error, missing {action[1]}')
                 # self.current_node = self.current_node.parent
                 print(token)
                 # self.print_parse_tree()
-                self.current_node_id = action[1]
+                self.current_node_id = action[2]
+            else:
+                print("empty cell! PANIC!!!")
+                print(action)
+                exit(0)
 
             # self.print_parse_tree()
 
-            if self.line != token[2]:
-                if self.line != -1:
-                    self.tokens_file.write(self.tokens_in_line + "\n")
-                self.line = token[2]
-                self.tokens_in_line = str(self.line) + ".\t"
 
-            if token[1] != "$":
-                self.tokens_in_line += "(" + token[1] + ", " + token[0] + ") "
-            else:
+            if token[1] == '$':
 
                 Node("$", parent=self.root)
                 self.print_parse_tree()
@@ -96,11 +99,22 @@ class Parser:
                     self.tokens_file.write(self.tokens_in_line + "\n")
                 # flush ErrorHandler for last line
                 ErrorHandler.flush_lexical_error()
+                ErrorHandler.flush_syntax_error()
                 break
 
         SymbolTable.print_symbols()
 
         self.tokens_file.close()
+        return
+
+    def update_line(self, token):
+        if self.line != token[2]:
+            if self.line != -1:
+                self.tokens_file.write(self.tokens_in_line + "\n")
+            self.line = token[2]
+            self.tokens_in_line = str(self.line) + ".\t"
+        if token[1] != "$":
+            self.tokens_in_line += "(" + token[1] + ", " + token[0] + ") "
 
     def print_parse_tree(self):
         for pre, fill, node in RenderTree(self.root):
@@ -115,14 +129,18 @@ class Parser:
         return
 
     def print_action(self, terminal, terminal_id, action):
-        if self.current_node_id < len(at.non_terminals):
-            print(f"table[{self.current_node_id} ({at.non_terminals[self.current_node_id]})]"
+        if self.current_node_id < 2 * len(at.non_terminals):
+            non_terminal_id = self.current_node_id if self.current_node_id < 45 else self.current_node_id - 45
+            print(f"table[{self.current_node_id} ({at.non_terminals[non_terminal_id]})]"
                   f"[{terminal_id} ({terminal})]"
                   f" = {action}")
-        elif self.current_node_id < 2 * len(at.non_terminals):
-            print(f"table[{self.current_node_id} ({at.non_terminals[self.current_node_id - 45]})]"
-                  f"[{terminal_id} ({terminal})]"
-                  f" = {action}")
+
+            # print("follow = ", FirstFollowPredict.FirstFollowPredict.follows[non_terminal_id])
+
+        # elif self.current_node_id < 2 * len(at.non_terminals):
+        #     print(f"table[{self.current_node_id} ({at.non_terminals[self.current_node_id - 45]})]"
+        #           f"[{terminal_id} ({terminal})]"
+        #           f" = {action}")
         else:
             print(f"table[{self.current_node_id} ({self.current_node.name})]"
                   f"[{terminal_id} ({terminal})]"
