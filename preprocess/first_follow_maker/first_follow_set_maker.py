@@ -57,7 +57,7 @@ terminals = sorted(set().union(*first).union(*follow))
 terminals.remove('ε')
 
 with open("../../FirstFollowPredict.py", "w") as f:
-    f.write("class first_follow_predict:\n\tfirsts = ")
+    f.write("class FirstFollowPredict:\n\tfirsts = ")
     f.write(str(first))
     f.write("\n\tfollows = ")
     f.write(str(follow))
