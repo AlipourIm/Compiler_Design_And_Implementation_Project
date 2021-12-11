@@ -300,7 +300,7 @@
       "radius": 20,
       "end": true,
       "start": false,
-      "label": "EOF"
+      "label": "$"
     }
   ],
   "transitions": [
