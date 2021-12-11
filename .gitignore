@@ -363,3 +363,5 @@ cython_debug/
 /symbol_table.txt
 /lexical_errors.txt
 /tokens.txt
+/syntax_errors.txt
+/parse_tree.txt

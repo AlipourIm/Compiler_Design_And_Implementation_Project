@@ -105,10 +105,13 @@ class Parser:
     def print_parse_tree(self):
         for pre, fill, node in RenderTree(self.root):
             print("%s%s" % (pre, node.name))
+        parse_tree = ""
 
+        for pre, fill, node in RenderTree(self.root):
+            parse_tree += "%s%s" % (pre, node.name) + '\n'
+        parse_tree = parse_tree[:-1]
         with open("parse_tree.txt", "w") as f:
-            for pre, fill, node in RenderTree(self.root):
-                f.write("%s%s" % (pre, node.name) + '\n')
+            f.write(parse_tree)
         return
 
     def print_action(self, terminal, terminal_id, action):
