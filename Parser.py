@@ -85,9 +85,12 @@ class Parser:
                     self.print_action(terminal, terminal_id, action)
 
             if action[0] == 'get':
-                Node(f'({message}, {lexeme})', parent=self.current_node)
-
-                if action[1] != terminal:
+                if action[1] == terminal:
+                    if message == '$':
+                        Node('$', parent=self.current_node)
+                    else:
+                        Node(f'({message}, {lexeme})', parent=self.current_node)
+                else:
                     ErrorHandler.catch_syntax_error(self.line, f'syntax error, missing {action[1]}')
                     avoid_get_next_token = True
                 # self.current_node = self.current_node.parent
@@ -99,9 +102,7 @@ class Parser:
                 if token[1] == '$':
                     ErrorHandler.catch_syntax_error(self.line, f'syntax error, Unexpected EOF')
                     # remove $ node from end of parse_tree, as in test_case_10
-                    print(self.current_node.name)
                     self.current_node.parent = None
-                    exit(0)
                 else:
                     self.print_action(terminal, terminal_id, action)
                     ErrorHandler.catch_syntax_error(self.line, f'syntax error, illegal {terminal}')
@@ -110,7 +111,7 @@ class Parser:
 
             if token[1] == '$':
 
-                Node("$", parent=self.root)
+                # Node("$", parent=self.root)
                 self.print_parse_tree()
 
                 # flush last line if it includes any token other than $

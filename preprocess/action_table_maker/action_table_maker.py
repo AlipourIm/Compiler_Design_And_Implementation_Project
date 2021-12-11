@@ -10,7 +10,7 @@ edges = []
 grammars_states = []
 
 for i in range(len(lines)):
-    splitted = lines[i].replace(' $', '').split(' ')
+    splitted = lines[i].split(' ')
     nt = splitted[0]
     nt_index = ffp.non_terminals.index(nt)
 
