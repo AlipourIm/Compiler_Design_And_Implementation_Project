@@ -50,8 +50,7 @@ for [grammar_id, grammar_state] in grammars_states:
     for t in ffp.predicts[grammar_id]:
         if symbol in ffp.terminals:
             action_table[nt_index][ffp.terminals.index(t)] = ["get"
-                , str(grammar_state)
-                , ")"]
+                , grammar_state]
         elif symbol in ffp.non_terminals:
             action_table[nt_index][ffp.terminals.index(t)] = ["go"
                 , ffp.non_terminals.index(symbol)
@@ -59,13 +58,14 @@ for [grammar_id, grammar_state] in grammars_states:
         else:
             action_table[nt_index][ffp.terminals.index(t)] = ["go"
                 , "ε"
-                , str(grammar_state)]
+                , grammar_state]
 
 ######################################################################
 # fill action table for final state of each non-terminal, based on its follow set
 ######################################################################
 for nt_index in range(len(ffp.non_terminals)):
     for t in ffp.follows[nt_index]:
+    # for t in ffp.terminals:
         action_table[nt_index + n][ffp.terminals.index(t)] = ['ACCEPT' if nt_index == 0 else 'return']
 
 ######################################################################
