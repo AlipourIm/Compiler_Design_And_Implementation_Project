@@ -41,13 +41,10 @@ class Parser:
                     terminal = message
                 terminal_id = at.terminals.index(terminal)
 
-            print("_________\nNew Terminal: ", terminal)
+            # print("_________\nNew Terminal: ", terminal)
 
             action = at.table[self.current_node_id][terminal_id]
             self.print_action(terminal, terminal_id, action)
-
-            if self.current_node_id == 46:
-                print(ffp.follows[1])
 
             while action[0] in ['go', 'return', 'sync']:
 
@@ -61,10 +58,9 @@ class Parser:
                         # remove it from parse_tree
                         self.current_node.parent = None
 
-                    print('...conducting a return state')
                     self.current_node = node_parent
-
-                    print("stack after return = ", self.stack)
+                    # print('...conducting a return state')
+                    # print("stack after return = ", self.stack)
                     # print(f"current_node_id = {self.current_node_id} ({self.current_node.name})", '\n')
                     action = at.table[self.current_node_id][terminal_id]
                     self.print_action(terminal, terminal_id, action)
@@ -93,9 +89,7 @@ class Parser:
                 else:
                     ErrorHandler.catch_syntax_error(self.line, f'syntax error, missing {action[1]}')
                     avoid_get_next_token = True
-                # self.current_node = self.current_node.parent
-                print(token)
-                # self.print_parse_tree()
+
                 self.current_node_id = action[2]
 
             elif action[0] == 'empty':
@@ -137,8 +131,8 @@ class Parser:
             self.tokens_in_line += "(" + token[1] + ", " + token[0] + ") "
 
     def print_parse_tree(self):
-        for pre, fill, node in RenderTree(self.root):
-            print("%s%s" % (pre, node.name))
+        # for pre, fill, node in RenderTree(self.root):
+        #     print("%s%s" % (pre, node.name))
         parse_tree = ""
 
         for pre, fill, node in RenderTree(self.root):
@@ -149,6 +143,7 @@ class Parser:
         return
 
     def print_action(self, terminal, terminal_id, action):
+        return
         if self.current_node_id < 2 * len(at.non_terminals):
             non_terminal_id = self.current_node_id if self.current_node_id < 45 else self.current_node_id - 45
             print(f"table[{self.current_node_id} ({at.non_terminals[non_terminal_id]})]"
