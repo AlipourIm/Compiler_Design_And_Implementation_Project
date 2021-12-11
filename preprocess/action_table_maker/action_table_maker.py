@@ -62,7 +62,8 @@ for [grammar_id, grammar_state] in grammars_states:
                 , grammar_state]
 
 for nt_index in range(len(ffp.non_terminals)):
-    for terminal_index in range(len(ffp.follows[nt_index])):
+    for terminal in ffp.follows[nt_index]:
+        terminal_index = ffp.terminals.index(terminal)
         if len(action_table[nt_index][terminal_index]) == 0:
             action_table[nt_index][terminal_index] = ['sync']
 
@@ -81,7 +82,8 @@ for e in edges:
     source, target, label = e
 
     if label in ffp.terminals:
-        action_table[source][ffp.terminals.index(label)] = ["get", label, target]
+        for terminal_index in range(len(ffp.terminals)):
+            action_table[source][terminal_index] = ["get", label, target]
 
     elif label in ffp.non_terminals:
         nt_index = ffp.non_terminals.index(label)
@@ -97,12 +99,18 @@ for e in edges:
             #             , ffp.non_terminals.index(label)
             #             , target]
 
-######################################################################
 
+######################################################################
+# fill cells which are still empty with 'empty'
+for i in range(len(action_table)):
+    for j in range(len(action_table[i])):
+        if len(action_table[i][j]) == 0:
+            action_table[i][j] = ['empty']
+
+######################################################################
 print("_____", ffp.terminals)
 for i in range(len(action_table)):
     print(f'{i:3d}: ', action_table[i])
-
 ######################################################################
 # write action table in ActionTable.py
 

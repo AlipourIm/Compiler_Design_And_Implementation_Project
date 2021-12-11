@@ -39,7 +39,8 @@ class ErrorHandler:
     @staticmethod
     def catch_syntax_error(line, message):
         ErrorHandler.number_of_syntax_errors += 1
-        ErrorHandler.syntax_error_file.write("#" + str(line) + " : " + message)
+        ErrorHandler.syntax_error_file.write("#" + str(line) + " : " + message + "\n")
+        print("#" + str(line) + " : " + message + "\n")
 
     @staticmethod
     def flush_syntax_error():

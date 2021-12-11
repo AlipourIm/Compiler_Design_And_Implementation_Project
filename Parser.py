@@ -1,10 +1,11 @@
 from anytree import Node, RenderTree
 
-import FirstFollowPredict
 from ErrorHandler import ErrorHandler
 from Scanner import Scanner
 from SymbolTable import SymbolTable
 from ActionTable import ActionTable as at
+from FirstFollowPredict import FirstFollowPredict as ffp
+
 
 class Parser:
 
@@ -22,16 +23,23 @@ class Parser:
     def main(self):
         scanner = Scanner()
 
+        avoid_get_next_token = False
+        lexeme, message, line, token, terminal, terminal_id = [None for _ in range(6)]
+
         while True:
-            token = scanner.get_next_token()
-            lexeme, message, line = token
 
-            self.update_line(token)
+            if avoid_get_next_token:
+                avoid_get_next_token = False
+            else:
+                token = scanner.get_next_token()
+                lexeme, message, line = token
 
-            terminal = lexeme
-            if message in ['NUM', 'ID', '$']:
-                terminal = message
-            terminal_id = at.terminals.index(terminal)
+                self.update_line(token)
+
+                terminal = lexeme
+                if message in ['NUM', 'ID', '$']:
+                    terminal = message
+                terminal_id = at.terminals.index(terminal)
 
             print("_________\nNew Terminal: ", terminal)
 
@@ -39,21 +47,25 @@ class Parser:
             self.print_action(terminal, terminal_id, action)
 
             if self.current_node_id == 46:
-                print(FirstFollowPredict.FirstFollowPredict.follows[1])
+                print(ffp.follows[1])
 
             while action[0] in ['go', 'return', 'sync']:
 
                 if action[0] in ['return', 'sync']:
 
+                    self.current_node_id = self.stack.pop()
+                    node_parent = self.current_node.parent
+
                     if action[0] == 'sync':
                         ErrorHandler.catch_syntax_error(self.line, f'syntax error, missing {self.current_node.name}')
+                        # remove it from parse_tree
+                        self.current_node.parent = None
 
                     print('...conducting a return state')
-                    self.current_node_id = self.stack.pop()
-                    self.current_node = self.current_node.parent
+                    self.current_node = node_parent
 
                     print("stack after return = ", self.stack)
-                    print(f"current_node_id = {self.current_node_id} ({self.current_node.name})", '\n')
+                    # print(f"current_node_id = {self.current_node_id} ({self.current_node.name})", '\n')
                     action = at.table[self.current_node_id][terminal_id]
                     self.print_action(terminal, terminal_id, action)
 
@@ -77,17 +89,24 @@ class Parser:
 
                 if action[1] != terminal:
                     ErrorHandler.catch_syntax_error(self.line, f'syntax error, missing {action[1]}')
+                    avoid_get_next_token = True
                 # self.current_node = self.current_node.parent
                 print(token)
                 # self.print_parse_tree()
                 self.current_node_id = action[2]
-            else:
-                print("empty cell! PANIC!!!")
-                print(action)
-                exit(0)
+
+            elif action[0] == 'empty':
+                if token[1] == '$':
+                    ErrorHandler.catch_syntax_error(self.line, f'syntax error, Unexpected EOF')
+                    # remove $ node from end of parse_tree, as in test_case_10
+                    print(self.current_node.name)
+                    self.current_node.parent = None
+                    exit(0)
+                else:
+                    self.print_action(terminal, terminal_id, action)
+                    ErrorHandler.catch_syntax_error(self.line, f'syntax error, illegal {terminal}')
 
             # self.print_parse_tree()
-
 
             if token[1] == '$':
 
@@ -135,14 +154,15 @@ class Parser:
                   f"[{terminal_id} ({terminal})]"
                   f" = {action}")
 
-            # print("follow = ", FirstFollowPredict.FirstFollowPredict.follows[non_terminal_id])
+            # print("follow = ", ffp.follows[non_terminal_id])
 
         # elif self.current_node_id < 2 * len(at.non_terminals):
         #     print(f"table[{self.current_node_id} ({at.non_terminals[self.current_node_id - 45]})]"
         #           f"[{terminal_id} ({terminal})]"
         #           f" = {action}")
         else:
-            print(f"table[{self.current_node_id} ({self.current_node.name})]"
-                  f"[{terminal_id} ({terminal})]"
-                  f" = {action}")
+            pass
+            # print(f"table[{self.current_node_id} ({self.current_node.name})]"
+            #       f"[{terminal_id} ({terminal})]"
+            #       f" = {action}")
         return
