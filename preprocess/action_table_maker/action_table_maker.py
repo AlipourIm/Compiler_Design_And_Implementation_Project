@@ -14,14 +14,10 @@ for i in range(len(lines)):
     nt = splitted[0]
     nt_index = ffp.non_terminals.index(nt)
 
-    # print("grammar for ", nt, ": ", splitted[2:])
-
     if len(splitted[2:]) == 1:
-        # edges.append([nt_index, nt_index + n, splitted[2]])
         grammars_states.append([i, nt_index + n])
 
     else:
-        # edges.append([nt_index, state_counter, splitted[2]])
         grammars_states.append([i, state_counter])
         state_counter += 1
 
@@ -30,11 +26,6 @@ for i in range(len(lines)):
             state_counter += 1
 
         edges.append([state_counter - 1, nt_index + n, splitted[-1]])
-
-    # print("state_counter = ", state_counter)
-    # print(edges)
-    # print(nt_grammars_states)
-    # input()
 
 action_table = [[[] for _ in range(len(ffp.terminals))] for _ in range(state_counter)]
 
