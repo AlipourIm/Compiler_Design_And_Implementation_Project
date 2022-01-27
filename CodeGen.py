@@ -10,8 +10,10 @@ class CodeGen:
         self.scope = 0
 
     def code_gen(self, action_symbol, token):
-        if action_symbol == "#type_id":
-            self.type_id(token)
+        if action_symbol == "#push_type":
+            self.push_type(token)
+        elif action_symbol == '#push_id':
+            self.push_id(token)
         elif action_symbol == '#decl_id':
             self.decl_id(token)
         elif action_symbol == '#end_decl_var':
@@ -27,11 +29,14 @@ class CodeGen:
         else:
             pass
 
-    def type_id(self, token):
+    def push_type(self, token):
         self.ss.append(token[0])
 
     def decl_id(self, token):
         self.ss.append(token[0])
+
+    def push_id(self, token):
+        self.ss.append(SymbolTable.find_address(token[0]))
 
     def end_decl_var(self):
         type_arg = self.ss[-2]
@@ -54,10 +59,10 @@ class CodeGen:
             self.ss.pop()
 
     def push_num(self, token):
-        self.ss.append(int(token[0]))
+        self.ss.append('#' + token[0])
 
     def end_decl_arr(self):
-        no_arg_cell = self.ss[-1]
+        no_arg_cell = int(self.ss[-1][1:])  # convert (#100, string) to (100, int)
         lexeme = self.ss[-2]
         type_arg = self.ss[-3]
 

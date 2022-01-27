@@ -2,7 +2,7 @@ Program -> Declaration_list $
 Declaration_list -> Declaration Declaration_list
 Declaration_list -> ε
 Declaration -> Declaration_initial Declaration_prime
-Declaration_initial -> #type_id Type_specifier #decl_id ID
+Declaration_initial -> #push_type Type_specifier #decl_id ID
 Declaration_prime -> Fun_declaration_prime
 Declaration_prime -> Var_declaration_prime
 Var_declaration_prime -> #end_decl_var ;
@@ -36,7 +36,7 @@ Return_stmt -> return Return_stmt_prime
 Return_stmt_prime -> ;
 Return_stmt_prime -> Expression ;
 Expression -> Simple_expression_zegond
-Expression -> ID B
+Expression -> #push_id ID B
 B -> = Expression
 B -> [ Expression ] H
 B -> Simple_expression_prime
@@ -61,8 +61,8 @@ Term_zegond -> Factor_zegond G
 G -> * Factor G
 G -> ε
 Factor -> ( Expression )
-Factor -> ID Var_call_prime
-Factor -> NUM
+Factor -> #push_id ID Var_call_prime
+Factor -> #push_num NUM
 Var_call_prime -> ( Args )
 Var_call_prime -> Var_prime
 Var_prime -> [ Expression ]
@@ -70,7 +70,7 @@ Var_prime -> ε
 Factor_prime -> ( Args )
 Factor_prime -> ε
 Factor_zegond -> ( Expression )
-Factor_zegond -> NUM
+Factor_zegond -> #push_num NUM
 Args -> Arg_list
 Args -> ε
 Arg_list -> Expression Arg_list_prime

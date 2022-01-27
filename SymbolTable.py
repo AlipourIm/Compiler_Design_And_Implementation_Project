@@ -33,6 +33,13 @@ class SymbolTable:
                 return
 
     @staticmethod
+    def find_address(lexeme):
+        tmp_table = SymbolTable.symbol_table[::-1]
+        for symbol_record in tmp_table:
+            if symbol_record.lexeme == lexeme:
+                return symbol_record.address
+
+    @staticmethod
     def get_token_type(lexeme):  # ID or KEYWORD.
         return "KEYWORD" if (lexeme in SymbolTable.keywords) else "ID"
 

@@ -106,6 +106,7 @@ class Parser:
                 if self.tokens_in_line[-1] != "\t":
                     self.tokens_file.write(self.tokens_in_line + "\n")
                 # flush ErrorHandler for last line
+                print(code_gen.ss)
                 ErrorHandler.flush_lexical_error()
                 ErrorHandler.flush_syntax_error()
                 break
