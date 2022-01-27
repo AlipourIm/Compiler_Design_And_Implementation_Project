@@ -39,7 +39,11 @@ for [grammar_id, grammar_state] in grammars_states:
     nt_index = ffp.non_terminals.index(nt)
 
     for t in ffp.predicts[grammar_id]:
-        if symbol in ffp.terminals:
+        if symbol[0] == "#":
+            action_table[nt_index][ffp.terminals.index(t)] = ["action_symbol"
+                , symbol
+                , grammar_state]
+        elif symbol in ffp.terminals:
             action_table[nt_index][ffp.terminals.index(t)] = ["get"
                 , symbol
                 , grammar_state]
@@ -72,7 +76,11 @@ for nt_index in range(len(ffp.non_terminals)):
 for e in edges:
     source, target, label = e
 
-    if label in ffp.terminals:
+    if label[0] == "#":
+        for terminal_index in range(len(ffp.terminals)):
+            action_table[source][terminal_index] = ["action_symbol", label, target]
+
+    elif label in ffp.terminals:
         for terminal_index in range(len(ffp.terminals)):
             action_table[source][terminal_index] = ["get", label, target]
 

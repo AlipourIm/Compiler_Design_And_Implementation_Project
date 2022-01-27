@@ -42,7 +42,7 @@ class Parser:
 
             action = at.table[self.current_node_id][terminal_id]
 
-            while action[0] in ['go', 'return', 'sync']:
+            while action[0] in ['go', 'return', 'sync', 'action_symbol']:
 
                 if action[0] in ['return', 'sync']:
 
@@ -67,6 +67,11 @@ class Parser:
                     else:
                         self.current_node_id = action[1]
                     self.stack.append(action[2])
+                    action = at.table[self.current_node_id][terminal_id]
+
+                elif action[0] == 'action_symbol':
+                    print("new action symbol: ", action)
+                    self.current_node_id = action[2]
                     action = at.table[self.current_node_id][terminal_id]
 
             if action[0] == 'get':

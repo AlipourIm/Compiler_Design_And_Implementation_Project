@@ -1,4 +1,4 @@
-Program -> Declaration_list $
+Program -> #very_first Declaration_list $
 Declaration_list -> Declaration Declaration_list
 Declaration_list -> ε
 Declaration -> Declaration_initial Declaration_prime
