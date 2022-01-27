@@ -21,13 +21,15 @@ class SymbolTable:
         SymbolTable.symbol_table.append(SymbolRecord(lexeme))
 
     @staticmethod
-    def declare_variable(lexeme, address, type_arg):
+    def declare_variable(lexeme, address, type_arg, scope, no_arg_cell=0):
         tmp_table = SymbolTable.symbol_table[::-1]
         for symbol_record in tmp_table:
             if symbol_record.lexeme == lexeme:
                 symbol_record.address = address
                 symbol_record.type = type_arg
-                symbol_record.proc_var_func = 'var'
+                symbol_record.no_arg_cell = no_arg_cell
+                symbol_record.scope = scope
+                symbol_record.var_arr_func = 'array' if no_arg_cell else 'var'
                 return
 
     @staticmethod
@@ -51,8 +53,9 @@ class SymbolRecord:
         self.address = None
         self.type = None
         self.scope = None
-        self.proc_var_func = None
+        self.var_arr_func = None
         self.no_arg_cell = None
 
     def __str__(self):
-        return f'lexeme: {self.lexeme}, isKeyword: {self.is_keyword}, address: {self.address}, type: {self.type}, proc_var_func: {self.proc_var_func}, no_arg_cell: {self.no_arg_cell}, scope: {self.scope}'
+        return f'lexeme: {self.lexeme}, isKeyword: {self.is_keyword}, address: {self.address}, type: {self.type}, ' \
+               f'var_arr_func: {self.var_arr_func}, no_arg_cell: {self.no_arg_cell}, scope: {self.scope} '

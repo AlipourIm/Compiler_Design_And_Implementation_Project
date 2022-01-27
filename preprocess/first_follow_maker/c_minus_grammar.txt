@@ -6,7 +6,7 @@ Declaration_initial -> #type_id Type_specifier #decl_id ID
 Declaration_prime -> Fun_declaration_prime
 Declaration_prime -> Var_declaration_prime
 Var_declaration_prime -> #end_decl_var ;
-Var_declaration_prime -> [ NUM ] ;
+Var_declaration_prime -> [ #push_num NUM ] #end_decl_arr ;
 Fun_declaration_prime -> ( Params ) Compound_stmt
 Type_specifier -> int
 Type_specifier -> void
@@ -17,7 +17,7 @@ Param_list -> ε
 Param -> Declaration_initial Param_prime
 Param_prime -> [ ]
 Param_prime -> ε
-Compound_stmt -> { Declaration_list Statement_list }
+Compound_stmt -> { #inc_scope Declaration_list Statement_list } #dec_scope
 Statement_list -> Statement Statement_list
 Statement_list -> ε
 Statement -> Expression_stmt
