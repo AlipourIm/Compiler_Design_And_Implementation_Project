@@ -1,0 +1,4 @@
+1) #type_id : push type of function or variable(next input) into semantic_stack.
+2) #decl_id : push id of function, array or variable into semantic stack.
+3) #end_decl_var : uses #1 and #2 and completes declaration by calling symbol table.
+4)

@@ -1,5 +1,6 @@
 from anytree import Node, RenderTree
 
+from CodeGen import CodeGen
 from ErrorHandler import ErrorHandler
 from Scanner import Scanner
 from SymbolTable import SymbolTable
@@ -21,6 +22,8 @@ class Parser:
 
     def main(self):
         scanner = Scanner()
+        code_gen = CodeGen()
+        symbol_table = SymbolTable()
 
         avoid_get_next_token = False
         lexeme, message, line, token, terminal, terminal_id = [None for _ in range(6)]
@@ -71,6 +74,7 @@ class Parser:
 
                 elif action[0] == 'action_symbol':
                     print("new action symbol: ", action)
+                    code_gen.code_gen(action[1], token)
                     self.current_node_id = action[2]
                     action = at.table[self.current_node_id][terminal_id]
 

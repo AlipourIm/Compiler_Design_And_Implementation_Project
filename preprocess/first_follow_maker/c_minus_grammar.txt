@@ -1,11 +1,11 @@
-Program -> #very_first Declaration_list $
+Program -> Declaration_list $
 Declaration_list -> Declaration Declaration_list
 Declaration_list -> ε
 Declaration -> Declaration_initial Declaration_prime
-Declaration_initial -> Type_specifier ID
+Declaration_initial -> #type_id Type_specifier #decl_id ID
 Declaration_prime -> Fun_declaration_prime
 Declaration_prime -> Var_declaration_prime
-Var_declaration_prime -> ;
+Var_declaration_prime -> #end_decl_var ;
 Var_declaration_prime -> [ NUM ] ;
 Fun_declaration_prime -> ( Params ) Compound_stmt
 Type_specifier -> int
