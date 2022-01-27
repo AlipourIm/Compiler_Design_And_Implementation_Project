@@ -1,7 +1,10 @@
-1) #type_id : push type of function or variable(next input) into semantic_stack.
-2) #decl_id : push id of function, array or variable into semantic stack.
-3) #end_decl_var : uses #1 and #2 and completes declaration by calling symbol table.
-4) #push_num : pushes immediate NUMber into stack.
-5) #end_decl_arr : uses #1 and #2 and 4 and completes declaration of array by calling symbol table.
-6) #inc_scope : increments scope counter when '{' is seen.
-7) #dec_scope : decrements scope counter when '}' is seen.
+01) #type_id : push type of function or variable(next input) into semantic_stack.
+02) #decl_id : push id of function, array or variable into semantic stack.
+03) #end_decl_var : uses #1 and #2 and completes declaration by calling symbol table.
+04) #push_num : pushes immediate NUMber into stack.
+05) #end_decl_arr : uses #1 and #2 and 4 and completes declaration of array by calling symbol table.
+06) #inc_scope : increments scope counter when '{' is seen.
+07) #dec_scope : decrements scope counter when '}' is seen.
+08) #push_id : pushes address assigned to ID into stack.
+09) #push_op : push the operator symbol like +,-,==,<,* into semantic stack.
+10) #operate : perform the binary operation which its operands and operator has been pushed already.

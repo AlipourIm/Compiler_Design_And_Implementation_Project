@@ -37,28 +37,28 @@ Return_stmt_prime -> ;
 Return_stmt_prime -> Expression ;
 Expression -> Simple_expression_zegond
 Expression -> #push_id ID B
-B -> = Expression
+B -> = Expression #direct_assign
 B -> [ Expression ] H
 B -> Simple_expression_prime
 H -> = Expression
 H -> G D C
 Simple_expression_zegond -> Additive_expression_zegond C
 Simple_expression_prime -> Additive_expression_prime C
-C -> Relop Additive_expression
+C -> #push_op Relop Additive_expression #operate
 C -> ε
 Relop -> <
 Relop -> ==
 Additive_expression -> Term D
 Additive_expression_prime -> Term_prime D
 Additive_expression_zegond -> Term_zegond D
-D -> Addop Term D
+D -> #push_op Addop Term #operate D
 D -> ε
 Addop -> +
 Addop -> -
 Term -> Factor G
 Term_prime -> Factor_prime G
 Term_zegond -> Factor_zegond G
-G -> * Factor G
+G -> #push_op * Factor #operate G
 G -> ε
 Factor -> ( Expression )
 Factor -> #push_id ID Var_call_prime
