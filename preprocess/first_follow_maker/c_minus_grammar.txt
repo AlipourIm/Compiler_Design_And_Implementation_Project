@@ -25,22 +25,22 @@ Statement -> Compound_stmt
 Statement -> Selection_stmt
 Statement -> Iteration_stmt
 Statement -> Return_stmt
-Expression_stmt -> Expression ;
+Expression_stmt -> Expression ; #pop_exp
 Expression_stmt -> break ;
 Expression_stmt -> ;
-Selection_stmt -> if ( Expression ) Statement Else_stmt
-Else_stmt -> endif
-Else_stmt -> else Statement endif
-Iteration_stmt -> repeat Statement until ( Expression )
+Selection_stmt -> if ( Expression ) #save_label Statement Else_stmt
+Else_stmt -> endif #if_jpf
+Else_stmt -> else #if_jpf_save_lebel Statement endif #then_jp
+Iteration_stmt -> repeat #label Statement until ( Expression ) #repeat_jump
 Return_stmt -> return Return_stmt_prime
 Return_stmt_prime -> ;
 Return_stmt_prime -> Expression ;
 Expression -> Simple_expression_zegond
 Expression -> #push_id ID B
-B -> = Expression #direct_assign
-B -> [ Expression ] H
+B -> = Expression #assign
+B -> [ Expression ] #indirect_addr H
 B -> Simple_expression_prime
-H -> = Expression
+H -> = Expression #assign
 H -> G D C
 Simple_expression_zegond -> Additive_expression_zegond C
 Simple_expression_prime -> Additive_expression_prime C
@@ -65,7 +65,7 @@ Factor -> #push_id ID Var_call_prime
 Factor -> #push_num NUM
 Var_call_prime -> ( Args )
 Var_call_prime -> Var_prime
-Var_prime -> [ Expression ]
+Var_prime -> [ Expression ] #indirect_addr
 Var_prime -> ε
 Factor_prime -> ( Args )
 Factor_prime -> ε

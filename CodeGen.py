@@ -6,8 +6,8 @@ class CodeGen:
         self.ss = []  # semantic stack
         self.program_block = []
         self.i = 0  # Counter for program block list
-        self.static_data_pointer = 1000
-        self.temp_data_pointer = 2000
+        self.static_data_pointer = 500
+        self.temp_data_pointer = 1000
         self.scope = 0
         self.program_block_file = open("output.txt", "w")
 
@@ -28,12 +28,28 @@ class CodeGen:
             self.inc_scope()
         elif action_symbol == '#dec_scope':
             self.dec_scope()
-        elif action_symbol == '#direct_assign':
-            self.direct_assign()
+        elif action_symbol == '#assign':
+            self.assign()
+        elif action_symbol == '#indirect_addr':
+            self.indirect_addr()
         elif action_symbol == '#push_op':
             self.push_op(token)
         elif action_symbol == '#operate':
             self.operate()
+        elif action_symbol == '#pop_exp':
+            self.pop_exp()
+        elif action_symbol == '#label':
+            self.label()
+        elif action_symbol == '#repeat_jump':
+            self.repeat_jump()
+        elif action_symbol == '#save_label':
+            self.save_label()
+        elif action_symbol == '#if_jpf':
+            self.if_jpf()
+        elif action_symbol == '#if_jpf_save_lebel':
+            self.if_jpf_save_lebel()
+        elif action_symbol == '#then_jp':
+            self.then_jp()
 
         else:
             pass
@@ -63,7 +79,7 @@ class CodeGen:
         self.static_data_pointer += byte
         return self.static_data_pointer - byte
 
-    def allocate_temp_variable(self, byte = 4):
+    def allocate_temp_variable(self, byte=4):
         self.temp_data_pointer += byte
         return self.temp_data_pointer - byte
 
@@ -93,10 +109,19 @@ class CodeGen:
     def dec_scope(self):
         self.scope -= 1
 
-    def direct_assign(self):
+    def assign(self):
         self.program_block.append(['ASSIGN', self.ss[-1], self.ss[-2], ''])
         self.i += 1
+        self.ss_pop(1)
+
+    def indirect_addr(self):
+        t1 = self.allocate_temp_variable()
+        self.program_block.append(['MULT', '#4', self.ss[-1], t1])
+        t2 = self.allocate_temp_variable()
+        self.program_block.append(['ADD', self.ss[-2], t1, t2])
+        self.i += 2
         self.ss_pop(2)
+        self.ss.append('@' + str(t2))
 
     def flush_program_block(self):
 
@@ -128,8 +153,42 @@ class CodeGen:
         elif self.ss[-2] == '==':
             self.program_block.append(['EQ', self.ss[-3], self.ss[-1], t])
 
-
         self.i += 1
         self.ss_pop(3)
         self.ss.append(t)
+
+    def pop_exp(self):
+        # TODO : what if the result of expression is void? like output(p)
+        self.ss_pop(1)
+
+    def label(self):
+        self.ss.append(self.i)
+
+    def repeat_jump(self):
+        self.program_block.append(['JPF', self.ss[-1], self.ss[-2], ''])
+        self.i += 1
+        self.ss_pop(2)
+
+    def save_label(self):
+        self.program_block.append(['JPF', 'condition', '?', ''])
+        self.ss.append(self.i)
+        self.i += 1
+
+    def if_jpf(self):
+        self.program_block[self.ss[-1]] = ['JPF', self.ss[-2], self.i, '']
+        self.ss_pop(2)
+
+    def if_jpf_save_lebel(self):
+
+        self.program_block[self.ss[-1]] = ['JPF', self.ss[-2], self.i + 1, '']
+        self.ss_pop(2)
+
+        self.program_block.append(['JP', '?', '', ''])
+        self.ss.append(self.i)
+        self.i += 1
+
+    def then_jp(self):
+        self.program_block[self.ss[-1]] = ['JP', self.i, '', '']
+        self.ss_pop(1)
+
 
