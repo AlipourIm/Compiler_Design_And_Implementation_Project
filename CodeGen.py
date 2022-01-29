@@ -82,6 +82,10 @@ class CodeGen:
 
         self.ss_pop(2)
 
+        # ASSIGN 0 to the new declared variable
+        self.program_block.append(['ASSIGN', '#0', address, ''])
+        self.i += 1
+
     def allocate_static_data(self, byte):
         self.static_data_pointer += byte
         return self.static_data_pointer - byte
@@ -109,6 +113,11 @@ class CodeGen:
         SymbolTable.declare_variable(lexeme, address, type_arg, self.scope, no_arg_cell=no_arg_cell)
 
         self.ss_pop(3)
+
+        # ASSIGN 0 to all elements of the new declared array
+        for cell in range(no_arg_cell):
+            self.program_block.append(['ASSIGN', '#0', 4*cell + address, ''])
+            self.i += 1
 
     def inc_scope(self):
         self.scope += 1
