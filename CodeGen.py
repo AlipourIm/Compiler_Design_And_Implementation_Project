@@ -10,6 +10,9 @@ class CodeGen:
         self.temp_data_pointer = 1000
         self.scope = 0
         self.program_block_file = open("output.txt", "w")
+        self.break_stack = []  # A stack for loop breaks to be back-patched consists of pairs of break_line and loop
+        # number for each instance
+        self.loop_counter = 0  # A counter for loops that has not been finished yet.
 
     def code_gen(self, action_symbol, token):
         if action_symbol == "#push_type":
@@ -46,10 +49,14 @@ class CodeGen:
             self.save_label()
         elif action_symbol == '#if_jpf':
             self.if_jpf()
-        elif action_symbol == '#if_jpf_save_lebel':
-            self.if_jpf_save_lebel()
+        elif action_symbol == '#if_jpf_save_label':
+            self.if_jpf_save_label()
         elif action_symbol == '#then_jp':
             self.then_jp()
+        elif action_symbol == '#inc_loop_cnt':
+            self.inc_loop_cnt()
+        elif action_symbol == '#save_break':
+            self.save_break()
 
         else:
             pass
@@ -118,7 +125,7 @@ class CodeGen:
         t1 = self.allocate_temp_variable()
         self.program_block.append(['MULT', '#4', self.ss[-1], t1])
         t2 = self.allocate_temp_variable()
-        self.program_block.append(['ADD', self.ss[-2], t1, t2])
+        self.program_block.append(['ADD', '#' + str(self.ss[-2]), t1, t2])
         self.i += 2
         self.ss_pop(2)
         self.ss.append('@' + str(t2))
@@ -165,9 +172,16 @@ class CodeGen:
         self.ss.append(self.i)
 
     def repeat_jump(self):
+        # First, complete conditional jump
         self.program_block.append(['JPF', self.ss[-1], self.ss[-2], ''])
         self.i += 1
         self.ss_pop(2)
+
+        # Then, handle break statements
+        while len(self.break_stack) != 0 and self.break_stack[-1][1] == self.loop_counter:
+            last_item = self.break_stack.pop()
+            self.program_block[last_item[0]] = ['JP', self.i, '', '']
+        self.loop_counter -= 1
 
     def save_label(self):
         self.program_block.append(['JPF', 'condition', '?', ''])
@@ -178,7 +192,7 @@ class CodeGen:
         self.program_block[self.ss[-1]] = ['JPF', self.ss[-2], self.i, '']
         self.ss_pop(2)
 
-    def if_jpf_save_lebel(self):
+    def if_jpf_save_label(self):
 
         self.program_block[self.ss[-1]] = ['JPF', self.ss[-2], self.i + 1, '']
         self.ss_pop(2)
@@ -191,4 +205,11 @@ class CodeGen:
         self.program_block[self.ss[-1]] = ['JP', self.i, '', '']
         self.ss_pop(1)
 
+    def inc_loop_cnt(self):
+        self.loop_counter += 1
 
+    def save_break(self):
+        #   TODO: handle a semantic error for when there is no loop to be braked
+        self.program_block.append(['JP', '?', '', ''])
+        self.break_stack.append([self.i, self.loop_counter])
+        self.i += 1
