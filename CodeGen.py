@@ -13,6 +13,8 @@ class CodeGen:
         self.break_stack = []  # A stack for loop breaks to be back-patched consists of pairs of break_line and loop
         # number for each instance
         self.loop_counter = 0  # A counter for loops that has not been finished yet.
+        self.offset_pointer = 0
+
 
     def code_gen(self, action_symbol, token):
         if action_symbol == "#push_type":
@@ -57,6 +59,11 @@ class CodeGen:
             self.inc_loop_cnt()
         elif action_symbol == '#save_break':
             self.save_break()
+        elif action_symbol == '#end_var_param':
+            self.end_var_param()
+        elif action_symbol == '#end_arr_param':
+            self.end_arr_param()
+
 
         else:
             pass
@@ -94,6 +101,10 @@ class CodeGen:
         self.temp_data_pointer += byte
         return self.temp_data_pointer - byte
 
+    def allocate_local_data(self, byte):
+        self.offset_pointer += byte
+        return self.offset_pointer - byte
+
     def ss_pop(self, count=1):
         for i in range(count):
             self.ss.pop()
@@ -106,7 +117,7 @@ class CodeGen:
         lexeme = self.ss[-2]
         type_arg = self.ss[-3]
 
-        address = self.allocate_static_data(4 * no_arg_cell)
+        address = self.allocate_static_data(4 * (1 + no_arg_cell))
 
         #   TODO : handle 'void type' semantic error.
 
@@ -114,13 +125,16 @@ class CodeGen:
 
         self.ss_pop(3)
 
+        self.program_block.append(['ASSIGN', '#' + str(address + 4), address, ''])
+        self.i += 1
         # ASSIGN 0 to all elements of the new declared array
         for cell in range(no_arg_cell):
-            self.program_block.append(['ASSIGN', '#0', 4*cell + address, ''])
+            self.program_block.append(['ASSIGN', '#0', 4*cell + 4 + address, ''])
             self.i += 1
 
     def inc_scope(self):
         self.scope += 1
+        self.offset_pointer = 0
 
     def dec_scope(self):
         self.scope -= 1
@@ -134,7 +148,7 @@ class CodeGen:
         t1 = self.allocate_temp_variable()
         self.program_block.append(['MULT', '#4', self.ss[-1], t1])
         t2 = self.allocate_temp_variable()
-        self.program_block.append(['ADD', '#' + str(self.ss[-2]), t1, t2])
+        self.program_block.append(['ADD', str(self.ss[-2]), t1, t2])
         self.i += 2
         self.ss_pop(2)
         self.ss.append('@' + str(t2))
@@ -222,3 +236,29 @@ class CodeGen:
         self.program_block.append(['JP', '?', '', ''])
         self.break_stack.append([self.i, self.loop_counter])
         self.i += 1
+
+    def end_var_param(self):
+        type_arg = self.ss[-2]
+        lexeme = self.ss[-1]
+
+        #   TODO : handle 'void type' semantic error.
+
+        offset = self.allocate_local_data(4)
+
+        SymbolTable.declare_param_variable(lexeme, offset, type_arg, self.scope)
+
+        self.ss_pop(2)
+
+    def end_arr_param(self):
+        type_arg = self.ss[-2]
+        lexeme = self.ss[-1]
+
+        #   TODO : handle 'void type' semantic error.
+
+        offset = self.allocate_local_data(4)
+
+        SymbolTable.declare_param_variable(lexeme, offset, type_arg, self.scope, -1)
+
+        self.ss_pop(2)
+
+

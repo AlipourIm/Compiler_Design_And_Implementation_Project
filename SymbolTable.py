@@ -33,6 +33,19 @@ class SymbolTable:
                 return
 
     @staticmethod
+    def declare_param_variable(lexeme, offset, type_arg, scope, no_arg_cell=0):
+        tmp_table = SymbolTable.symbol_table[::-1]
+        for symbol_record in tmp_table:
+            if symbol_record.lexeme == lexeme:
+                symbol_record.offset = offset
+                symbol_record.type = type_arg
+                symbol_record.no_arg_cell = no_arg_cell
+                symbol_record.scope = scope
+                symbol_record.var_arr_func = 'array' if no_arg_cell else 'var'
+                symbol_record.is_param = True
+                return
+
+    @staticmethod
     def find_address(lexeme):
         tmp_table = SymbolTable.symbol_table[::-1]
         for symbol_record in tmp_table:
@@ -62,7 +75,10 @@ class SymbolRecord:
         self.scope = None
         self.var_arr_func = None
         self.no_arg_cell = None
+        self.offset = None
+        self.is_param = False
 
     def __str__(self):
-        return f'lexeme: {self.lexeme}, isKeyword: {self.is_keyword}, address: {self.address}, type: {self.type}, ' \
-               f'var_arr_func: {self.var_arr_func}, no_arg_cell: {self.no_arg_cell}, scope: {self.scope} '
+        return f'lexeme: {self.lexeme}, isKeyword: {self.is_keyword}, address: {self.address}, offset: {self.offset}, ' \
+               f'type: {self.type}, var_arr_func: {self.var_arr_func}, no_arg_cell: {self.no_arg_cell}, ' \
+               f'scope: {self.scope} '
