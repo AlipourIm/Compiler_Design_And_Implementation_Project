@@ -15,7 +15,6 @@ class CodeGen:
         self.loop_counter = 0  # A counter for loops that has not been finished yet.
         self.offset_pointer = 0
 
-
     def code_gen(self, action_symbol, token):
         if action_symbol == "#push_type":
             self.push_type(token)
@@ -63,6 +62,10 @@ class CodeGen:
             self.end_var_param()
         elif action_symbol == '#end_arr_param':
             self.end_arr_param()
+        elif action_symbol == '#end_decl_fun':
+            self.end_decl_fun()
+        elif action_symbol == '#start_decl_fun':
+            self.start_decl_fun()
 
 
         else:
@@ -129,7 +132,7 @@ class CodeGen:
         self.i += 1
         # ASSIGN 0 to all elements of the new declared array
         for cell in range(no_arg_cell):
-            self.program_block.append(['ASSIGN', '#0', 4*cell + 4 + address, ''])
+            self.program_block.append(['ASSIGN', '#0', 4 * cell + 4 + address, ''])
             self.i += 1
 
     def inc_scope(self):
@@ -261,4 +264,16 @@ class CodeGen:
 
         self.ss_pop(2)
 
+    def end_decl_fun(self):
+        type_arg = self.ss[-2]
+        lexeme = self.ss[-1]
 
+        SymbolTable.declare_function(lexeme, type_arg)
+
+        self.ss_pop(2)
+
+    def start_decl_fun(self):
+        type_arg = self.ss[-2]
+        lexeme = self.ss[-1]
+
+        SymbolTable.add_symbol(lexeme)

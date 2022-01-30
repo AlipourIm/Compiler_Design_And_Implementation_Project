@@ -7,7 +7,7 @@ Declaration_prime -> Fun_declaration_prime
 Declaration_prime -> Var_declaration_prime
 Var_declaration_prime -> #end_decl_var ;
 Var_declaration_prime -> [ #push_num NUM ] #end_decl_arr ;
-Fun_declaration_prime -> #inc_scope ( Params ) Compound_stmt #dec_scope
+Fun_declaration_prime -> #inc_scope #start_decl_fun ( Params ) Compound_stmt #dec_scope #end_decl_fun
 Type_specifier -> int
 Type_specifier -> void
 Params -> #push_type int #decl_id ID Param_prime Param_list

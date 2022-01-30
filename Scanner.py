@@ -54,7 +54,7 @@ class Scanner:
             elif "WHITESPACE" in message or "COMMENT" in message:
                 continue
             elif "KEYWORD/ID" in message:
-                SymbolTable.add_symbol(lexeme)
+                #SymbolTable.add_symbol(lexeme)
                 message = message.replace("KEYWORD/ID", SymbolTable.get_token_type(lexeme))
 
             return lexeme, message, line

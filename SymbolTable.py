@@ -22,28 +22,37 @@ class SymbolTable:
 
     @staticmethod
     def declare_variable(lexeme, address, type_arg, scope, no_arg_cell=0):
-        tmp_table = SymbolTable.symbol_table[::-1]
-        for symbol_record in tmp_table:
-            if symbol_record.lexeme == lexeme:
-                symbol_record.address = address
-                symbol_record.type = type_arg
-                symbol_record.no_arg_cell = no_arg_cell
-                symbol_record.scope = scope
-                symbol_record.var_arr_func = 'array' if no_arg_cell else 'var'
-                return
+        SymbolTable.symbol_table.append(
+            SymbolRecord(lexeme=lexeme, address=address, type_=type_arg, scope=scope, no_arg_cell=no_arg_cell,
+                         var_arr_func='array' if no_arg_cell else 'var'))
 
     @staticmethod
     def declare_param_variable(lexeme, offset, type_arg, scope, no_arg_cell=0):
+        SymbolTable.symbol_table.append(
+            SymbolRecord(lexeme=lexeme, offset=offset, type_=type_arg, scope=scope, no_arg_cell=no_arg_cell,
+                         var_arr_func='array' if no_arg_cell else 'var', is_param=True))
+
+    @staticmethod
+    def declare_function(lexeme, type_arg):
+        no_arg_cell = 0
+        no_var = 0
+        arg_type_list = []
         tmp_table = SymbolTable.symbol_table[::-1]
         for symbol_record in tmp_table:
             if symbol_record.lexeme == lexeme:
-                symbol_record.offset = offset
                 symbol_record.type = type_arg
                 symbol_record.no_arg_cell = no_arg_cell
-                symbol_record.scope = scope
-                symbol_record.var_arr_func = 'array' if no_arg_cell else 'var'
-                symbol_record.is_param = True
+                symbol_record.var_arr_func = 'func'
+                symbol_record.no_var = no_var
+                symbol_record.arg_type_list = arg_type_list[::-1]
                 return
+            else:
+                if symbol_record.is_param:
+                    no_arg_cell += 1
+                    arg_type_list.append((symbol_record.type, symbol_record.var_arr_func))
+                else:
+                    no_var += 1
+                SymbolTable.symbol_table.pop()
 
     @staticmethod
     def find_address(lexeme):
@@ -67,18 +76,23 @@ class SymbolTable:
 
 
 class SymbolRecord:
-    def __init__(self, lexeme, is_keyword=False):
+    def __init__(self, lexeme, is_keyword=False, address=None, type_=None, scope=None, var_arr_func=None,
+                 no_arg_cell=None, offset=None, is_param=False, no_var=None):
         self.lexeme = lexeme
         self.is_keyword = is_keyword
-        self.address = None
-        self.type = None
-        self.scope = None
-        self.var_arr_func = None
-        self.no_arg_cell = None
-        self.offset = None
-        self.is_param = False
+        self.address = address
+        self.type = type_
+        self.scope = scope
+        self.var_arr_func = var_arr_func
+        self.no_arg_cell = no_arg_cell
+        self.offset = offset
+        self.is_param = is_param
+        self.no_var = no_var
+        self.arg_type_list = []
 
     def __str__(self):
         return f'lexeme: {self.lexeme}, isKeyword: {self.is_keyword}, address: {self.address}, offset: {self.offset}, ' \
                f'type: {self.type}, var_arr_func: {self.var_arr_func}, no_arg_cell: {self.no_arg_cell}, ' \
-               f'scope: {self.scope} '
+               f'no_var: {self.no_var} ' \
+               f'scope: {self.scope} ' \
+               f'arg_type_list: {self.arg_type_list}'
