@@ -21,3 +21,4 @@
 21) #save_break : save a code for break to be back-patched in #15
 22) #end_arr_param : uses #1 and #2 and completes definition of array param by calling symbol table and setting its offset.
 23) #end_var_param : uses #1 and #2 and completes definition of variable param by calling symbol table and setting its offset.
+24) #start_var_param : insert function lexeme to symbol table
