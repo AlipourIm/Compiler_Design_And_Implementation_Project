@@ -8,7 +8,8 @@ class CodeGen:
         self.i = 0  # Counter for program block list
         self.top_sp = 5000
         self.return_jump = 5004
-        self.static_data_pointer = 5008
+        self.indirect_var = 5008
+        self.static_data_pointer = 5012
         self.temp_data_pointer = 30000
         self.scope = 0
         self.program_block_file = open("output.txt", "w")
@@ -18,8 +19,9 @@ class CodeGen:
         self.offset_pointer = 0
         self.current_func_lexeme = None
         self.program_block.append(['ASSIGN', '#' + str(40000), self.top_sp, ''])
-        self.program_block.append(['JP', 'main address ?', '', ''])
-        self.i += 2
+        self.i += 1
+        # self.program_block.append(['JP', 'main address ?', '', ''])
+        # self.i += 1
 
     def code_gen(self, action_symbol, token):
 
@@ -84,9 +86,7 @@ class CodeGen:
         elif action_symbol == '#jp_main':
             self.jp_main()
 
-
-        else:
-            print(self.ss)
+        print(self.ss)
 
     def push_type(self, token):
         self.ss.append(token[0])
@@ -218,6 +218,8 @@ class CodeGen:
         array_pointer = self.ss[-2]
         self.ss_pop(2)
 
+        self.ss.append(self.indirect_var)
+
         self.ss.append('#4')
         self.ss.append('*')
         self.ss.append(index)
@@ -232,6 +234,32 @@ class CodeGen:
         self.ss.append('+')
         self.ss.append('@' + str(t1))
         self.operate()
+
+        addr = self.ss[-1]
+        self.assign()
+        self.ss_pop(1)
+
+        # self.program_block.append(['PRINT', '30040', '', ''])
+        # self.i += 1
+        # self.program_block.append(['PRINT', '@30044', '', ''])
+        # self.i += 1
+        # self.program_block.append(['PRINT', '@30048', '', ''])
+        # self.i += 1
+        self.program_block.append(['ASSIGN', '@' + str(self.indirect_var), self.indirect_var, ''])
+        self.i += 1
+
+        self.ss.append(addr)
+        self.ss.append(self.indirect_var)
+        self.assign()
+
+
+        # t1 = self.allocate_temp_variable(4)
+        # self.ss.append(t1)
+        # self.ss.append('!12')
+        # self.assign()
+        # self.ss_pop(1)
+        # self.program_block.append(['PRINT', str(t1), '', ''])
+        # self.i += 1
 
     def flush_program_block(self):
 
@@ -362,6 +390,21 @@ class CodeGen:
 
         self.ss_pop(2)
 
+
+    def start_decl_fun(self):
+        type_arg = self.ss[-2]
+        lexeme = self.ss[-1]
+        self.current_func_lexeme = lexeme
+
+        SymbolTable.add_symbol(lexeme)
+
+        # reserve a jump from before of function to after of function
+        self.program_block.append(['JP', '? jump to after of function', '', ''])
+        self.i += 1
+
+        # push the address for first line of function
+        self.ss.append(self.i)
+
     def end_decl_fun(self):
         type_arg = self.ss[-3]
         lexeme = self.ss[-2]
@@ -374,14 +417,12 @@ class CodeGen:
         # TODO : what if type_arg is int
         self.return_void()
 
-    def start_decl_fun(self):
-        type_arg = self.ss[-2]
-        lexeme = self.ss[-1]
-        self.current_func_lexeme = lexeme
-
-        SymbolTable.add_symbol(lexeme)
-
-        self.ss.append(self.i)
+        print("address for jump over function: ", address)
+        # back-patching, fill jump from before of function to after of fuction
+        if lexeme == 'main':
+            self.program_block[address - 1] = ['JP', address, '', '']
+        else:
+            self.program_block[address - 1] = ['JP', self.i, '', '']
 
     def call_func(self):
 
@@ -438,24 +479,24 @@ class CodeGen:
         self.ss.append('!' + str(t1))
 
     def offset_to_temp(self, expression):
-        print(f'on line {self.i} offset {expression} is converting to ', end='')
+        # print(f'on line {self.i} offset {expression} is converting to ', end='')
         if str(expression)[0] == '!':
             t1 = self.allocate_temp_variable()
             self.program_block.append(['ADD', self.top_sp, '#' + str(expression)[1:], t1])
             self.i += 1
             expression = '@' + str(t1)
-        print(expression)
+        # print(expression)
         return expression
 
     def offset_to_temp_backpatching(self, expression, address):
-        print(f'on line {self.i} offset {expression} is converting to ', end='')
+        # print(f'on line {self.i} offset {expression} is converting to ', end='')
         if str(expression)[0] == '!':
             t1 = self.allocate_temp_variable()
             self.program_block[address] = ['ADD', self.top_sp, '#' + str(expression)[1:], t1]
             expression = '@' + str(t1)
         else:
             self.program_block[address] = ['JP', address + 1, '', '']
-        print(expression)
+        # print(expression)
         return expression
 
     def return_void(self):
@@ -493,5 +534,6 @@ class CodeGen:
         self.i += 1
 
     def jp_main(self):
-        _, address = SymbolTable.find_function('main')
-        self.program_block[1] = ['JP', address, '', '']
+        # _, address = SymbolTable.find_function('main')
+        # self.program_block[1] = ['JP', address, '', '']
+        pass
