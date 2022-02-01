@@ -21,9 +21,15 @@ class SymbolTable:
         SymbolTable.symbol_table.append(SymbolRecord(lexeme))
 
     @staticmethod
-    def declare_variable(lexeme, address, type_arg, scope, no_arg_cell=0):
+    def declare_global_variable(lexeme, address, type_arg, scope, no_arg_cell=0):
         SymbolTable.symbol_table.append(
             SymbolRecord(lexeme=lexeme, address=address, type_=type_arg, scope=scope, no_arg_cell=no_arg_cell,
+                         var_arr_func='array' if no_arg_cell else 'var'))
+
+    @staticmethod
+    def declare_local_variable(lexeme, offset, type_arg, scope, no_arg_cell=0):
+        SymbolTable.symbol_table.append(
+            SymbolRecord(lexeme=lexeme, offset=offset, type_=type_arg, scope=scope, no_arg_cell=no_arg_cell,
                          var_arr_func='array' if no_arg_cell else 'var'))
 
     @staticmethod
@@ -34,6 +40,7 @@ class SymbolTable:
 
     @staticmethod
     def declare_function(lexeme, type_arg):
+        print(f"declaring function \"{lexeme}\"...")
         no_arg_cell = 0
         no_var = 0
         arg_type_list = []
@@ -52,7 +59,15 @@ class SymbolTable:
                     arg_type_list.append((symbol_record.type, symbol_record.var_arr_func))
                 else:
                     no_var += 1
-                SymbolTable.symbol_table.pop()
+                # SymbolTable.symbol_table.pop()
+                print(f"popping symbol {symbol_record.lexeme}")
+
+    @staticmethod
+    def is_global(lexeme):
+        tmp_table = SymbolTable.symbol_table[::-1]
+        for symbol_record in tmp_table:
+            if symbol_record.lexeme == lexeme:
+                return symbol_record.scope == 0
 
     @staticmethod
     def find_address(lexeme):
@@ -60,6 +75,13 @@ class SymbolTable:
         for symbol_record in tmp_table:
             if symbol_record.lexeme == lexeme:
                 return symbol_record.address
+
+    @staticmethod
+    def find_offset(lexeme):
+        tmp_table = SymbolTable.symbol_table[::-1]
+        for symbol_record in tmp_table:
+            if symbol_record.lexeme == lexeme:
+                return symbol_record.offset
 
     @staticmethod
     def get_token_type(lexeme):  # ID or KEYWORD.

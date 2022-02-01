@@ -6,8 +6,9 @@ class CodeGen:
         self.ss = []  # semantic stack
         self.program_block = []
         self.i = 0  # Counter for program block list
-        self.static_data_pointer = 500
-        self.temp_data_pointer = 1000
+        self.top_sp = 100
+        self.static_data_pointer = 504
+        self.temp_data_pointer = 3000
         self.scope = 0
         self.program_block_file = open("output.txt", "w")
         self.break_stack = []  # A stack for loop breaks to be back-patched consists of pairs of break_line and loop
@@ -16,6 +17,9 @@ class CodeGen:
         self.offset_pointer = 0
 
     def code_gen(self, action_symbol, token):
+
+        print(self.ss)
+
         if action_symbol == "#push_type":
             self.push_type(token)
         elif action_symbol == '#push_id':
@@ -69,7 +73,7 @@ class CodeGen:
 
 
         else:
-            pass
+            print(self.ss)
 
     def push_type(self, token):
         self.ss.append(token[0])
@@ -78,23 +82,83 @@ class CodeGen:
         self.ss.append(token[0])
 
     def push_id(self, token):
-        self.ss.append(SymbolTable.find_address(token[0]))
+        lexeme = token[0]
+        if SymbolTable.is_global(lexeme):
+            self.ss.append(SymbolTable.find_address(lexeme))
+        else:
+            offset = SymbolTable.find_offset(lexeme)
+            self.ss.append('!' + str(SymbolTable.find_offset(lexeme)))
 
     def end_decl_var(self):
         type_arg = self.ss[-2]
         lexeme = self.ss[-1]
+        self.ss_pop(2)
 
         #   TODO : handle 'void type' semantic error.
 
-        address = self.allocate_static_data(4)
+        # if in the global scope, set a direct address for variable
+        if self.scope == 0:
+            address = self.allocate_static_data(4)
+            SymbolTable.declare_global_variable(lexeme, address, type_arg, self.scope)
 
-        SymbolTable.declare_variable(lexeme, address, type_arg, self.scope)
+            # push the address for upcoming assign to zero
+            self.ss.append(address)
 
-        self.ss_pop(2)
+        # if in the function scope, set an offset for local variable
+        else:
+            offset = self.allocate_local_data(4)
+            SymbolTable.declare_local_variable(lexeme, offset, type_arg, self.scope)
 
-        # ASSIGN 0 to the new declared variable
-        self.program_block.append(['ASSIGN', '#0', address, ''])
-        self.i += 1
+            # push the offset for upcoming assign to zero
+            self.ss.append('!' + str(offset))
+
+        self.ss.append('#0')
+        self.assign()
+        self.ss_pop(1)
+
+    def end_decl_arr(self):
+        no_arg_cell = int(self.ss[-1][1:])  # convert (#100, string) to (100, int)
+        lexeme = self.ss[-2]
+        type_arg = self.ss[-3]
+        self.ss_pop(3)
+
+        #   TODO : handle 'void type' semantic error.
+
+        if self.scope == 0:
+            address = self.allocate_static_data(4 * (1 + no_arg_cell))
+            SymbolTable.declare_global_variable(lexeme, address, type_arg, self.scope, no_arg_cell=no_arg_cell)
+
+            # ASSIGN address of first cell of array (address + 4) in the pointer of array (address)
+            self.program_block.append(['ASSIGN', '#' + str(address + 4), address, ''])
+            self.i += 1
+            # ASSIGN 0 to all elements of the new declared array
+            for cell in range(no_arg_cell):
+                self.ss.append(4 * cell + 4 + address)
+                self.ss.append('#0')
+                self.assign()
+                self.ss_pop(1)
+
+        else:
+            offset = self.allocate_local_data(4 * (1 + no_arg_cell))
+            SymbolTable.declare_local_variable(lexeme, offset, type_arg, self.scope, no_arg_cell=no_arg_cell)
+
+            # ASSIGN offset of first cell of array (address + 4) in the pointer of array (address)
+            t1 = self.allocate_temp_variable()
+            self.program_block.append(['ADD', self.top_sp, '#' + str(4 + offset), t1])
+            self.i += 1
+            rhs = str(t1)
+
+            self.ss.append('!' + str(offset))
+            self.ss.append(rhs)
+            self.assign()
+            self.ss_pop(1)
+
+            # ASSIGN 0 to all elements of the new declared array
+            for cell in range(no_arg_cell):
+                self.ss.append('!' + str(4 * cell + 4 + offset))
+                self.ss.append('#0')
+                self.assign()
+                self.ss_pop(1)
 
     def allocate_static_data(self, byte):
         self.static_data_pointer += byte
@@ -104,7 +168,7 @@ class CodeGen:
         self.temp_data_pointer += byte
         return self.temp_data_pointer - byte
 
-    def allocate_local_data(self, byte):
+    def allocate_local_data(self, byte=4):
         self.offset_pointer += byte
         return self.offset_pointer - byte
 
@@ -115,26 +179,6 @@ class CodeGen:
     def push_num(self, token):
         self.ss.append('#' + token[0])
 
-    def end_decl_arr(self):
-        no_arg_cell = int(self.ss[-1][1:])  # convert (#100, string) to (100, int)
-        lexeme = self.ss[-2]
-        type_arg = self.ss[-3]
-
-        address = self.allocate_static_data(4 * (1 + no_arg_cell))
-
-        #   TODO : handle 'void type' semantic error.
-
-        SymbolTable.declare_variable(lexeme, address, type_arg, self.scope, no_arg_cell=no_arg_cell)
-
-        self.ss_pop(3)
-
-        self.program_block.append(['ASSIGN', '#' + str(address + 4), address, ''])
-        self.i += 1
-        # ASSIGN 0 to all elements of the new declared array
-        for cell in range(no_arg_cell):
-            self.program_block.append(['ASSIGN', '#0', 4 * cell + 4 + address, ''])
-            self.i += 1
-
     def inc_scope(self):
         self.scope += 1
         self.offset_pointer = 0
@@ -143,18 +187,38 @@ class CodeGen:
         self.scope -= 1
 
     def assign(self):
-        self.program_block.append(['ASSIGN', self.ss[-1], self.ss[-2], ''])
+        rhs = self.ss[-1]
+        lhs = self.ss[-2]
+
+        if str(rhs)[0] == '!':
+            t1 = self.allocate_temp_variable()
+            self.program_block.append(['ADD', self.top_sp, '#' + str(rhs)[1:], t1])
+            self.i += 1
+            rhs = '@' + str(t1)
+
+        if str(lhs)[0] == '!':
+            t1 = self.allocate_temp_variable()
+            self.program_block.append(['ADD', self.top_sp, '#' + str(lhs)[1:], t1])
+            self.i += 1
+            lhs = '@' + str(t1)
+
+        self.program_block.append(['ASSIGN', rhs, lhs, ''])
         self.i += 1
         self.ss_pop(1)
 
     def indirect_addr(self):
-        t1 = self.allocate_temp_variable()
-        self.program_block.append(['MULT', '#4', self.ss[-1], t1])
-        t2 = self.allocate_temp_variable()
-        self.program_block.append(['ADD', str(self.ss[-2]), t1, t2])
-        self.i += 2
+        index = self.ss[-1]
+        array_pointer = self.ss[-2]
         self.ss_pop(2)
-        self.ss.append('@' + str(t2))
+
+        self.ss.append('#4')
+        self.ss.append('*')
+        self.ss.append(index)
+        self.operate()
+
+        self.ss.append('+')
+        self.ss.append(array_pointer)
+        self.operate()
 
     def flush_program_block(self):
 
@@ -173,22 +237,41 @@ class CodeGen:
         self.ss.append(token[0])
 
     def operate(self):
-        t = self.allocate_temp_variable()
+        rhs1 = self.ss[-3]
+        rhs2 = self.ss[-1]
+
+        if str(rhs1)[0] == '!':
+            t1 = self.allocate_temp_variable()
+            self.program_block.append(['ADD', self.top_sp, '#' + str(rhs1)[1:], t1])
+            self.i += 1
+            rhs1 = '@' + str(t1)
+
+        if str(rhs2)[0] == '!':
+            t1 = self.allocate_temp_variable()
+            self.program_block.append(['ADD', self.top_sp, '#' + str(rhs2)[1:], t1])
+            self.i += 1
+            rhs2 = '@' + str(t1)
+
+        lhs_offset = self.allocate_local_data(4)
+        lhs = self.allocate_temp_variable()
+        self.program_block.append(['ADD', self.top_sp, '#' + str(lhs_offset), lhs])
+        self.i += 1
+        lhs = '@' + str(lhs)
 
         if self.ss[-2] == '+':
-            self.program_block.append(['ADD', self.ss[-3], self.ss[-1], t])
+            self.program_block.append(['ADD', rhs1, rhs2, lhs])
         elif self.ss[-2] == '-':
-            self.program_block.append(['SUB', self.ss[-3], self.ss[-1], t])
+            self.program_block.append(['SUB', rhs1, rhs2, lhs])
         elif self.ss[-2] == '*':
-            self.program_block.append(['MULT', self.ss[-3], self.ss[-1], t])
+            self.program_block.append(['MULT', rhs1, rhs2, lhs])
         elif self.ss[-2] == '<':
-            self.program_block.append(['LT', self.ss[-3], self.ss[-1], t])
+            self.program_block.append(['LT', rhs1, rhs2, lhs])
         elif self.ss[-2] == '==':
-            self.program_block.append(['EQ', self.ss[-3], self.ss[-1], t])
+            self.program_block.append(['EQ', rhs1, rhs2, lhs])
 
         self.i += 1
         self.ss_pop(3)
-        self.ss.append(t)
+        self.ss.append('!' + str(lhs_offset))
 
     def pop_exp(self):
         # TODO : what if the result of expression is void? like output(p)
