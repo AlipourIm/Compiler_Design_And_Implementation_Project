@@ -7,6 +7,9 @@ class SymbolTable:
         for keyword in SymbolTable.keywords:
             self.symbol_table.append(SymbolRecord(keyword, is_keyword=True))
 
+        # put special symbol for output function which will handle PRINT
+        self.symbol_table.append(SymbolRecord(lexeme = 'output', type_='void', address=-1, scope=0, var_arr_func='func', no_arg_cell=1, arg_type_list=[('int', 'var')]))
+
     def add_row(self, lexeme):
         pass
 
@@ -61,7 +64,7 @@ class SymbolTable:
                     arg_type_list.append((symbol_record.type, symbol_record.var_arr_func))
                 else:
                     no_var += 1
-                # SymbolTable.symbol_table.pop()
+                SymbolTable.symbol_table.pop()
                 print(f"popping symbol {symbol_record.lexeme}")
 
     @staticmethod
@@ -115,7 +118,7 @@ class SymbolTable:
 
 class SymbolRecord:
     def __init__(self, lexeme, is_keyword=False, address=None, type_=None, scope=None, var_arr_func=None,
-                 no_arg_cell=None, offset=None, is_param=False, no_var=None):
+                 no_arg_cell=None, offset=None, is_param=False, no_var=None, arg_type_list=[]):
         self.lexeme = lexeme
         self.is_keyword = is_keyword
         self.address = address
@@ -126,7 +129,7 @@ class SymbolRecord:
         self.offset = offset
         self.is_param = is_param
         self.no_var = no_var
-        self.arg_type_list = []
+        self.arg_type_list = arg_type_list
 
     def __str__(self):
         return f'lexeme: {self.lexeme}, isKeyword: {self.is_keyword}, address: {self.address}, offset: {self.offset}, ' \

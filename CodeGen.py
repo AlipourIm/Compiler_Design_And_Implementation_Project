@@ -6,9 +6,10 @@ class CodeGen:
         self.ss = []  # semantic stack
         self.program_block = []
         self.i = 0  # Counter for program block list
-        self.top_sp = 100
-        self.static_data_pointer = 504
-        self.temp_data_pointer = 3000
+        self.top_sp = 5000
+        self.return_jump = 5004
+        self.static_data_pointer = 5008
+        self.temp_data_pointer = 30000
         self.scope = 0
         self.program_block_file = open("output.txt", "w")
         self.break_stack = []  # A stack for loop breaks to be back-patched consists of pairs of break_line and loop
@@ -16,7 +17,7 @@ class CodeGen:
         self.loop_counter = 0  # A counter for loops that has not been finished yet.
         self.offset_pointer = 0
         self.current_func_lexeme = None
-        self.program_block.append(['ASSIGN', '@' + str(500), '#' + str(100), ''])
+        self.program_block.append(['ASSIGN', '#' + str(40000), self.top_sp, ''])
         self.program_block.append(['JP', 'main address ?', '', ''])
         self.i += 2
 
@@ -131,7 +132,7 @@ class CodeGen:
         self.ss_pop(1)
 
     def end_decl_arr(self):
-        no_arg_cell = int(self.ss[-1][1:])  # convert (#100, string) to (100, int)
+        no_arg_cell = int(self.ss[-1][1:])  # convert (#123, string) to (123, int)
         lexeme = self.ss[-2]
         type_arg = self.ss[-3]
         self.ss_pop(3)
@@ -204,17 +205,9 @@ class CodeGen:
         rhs = self.ss[-1]
         lhs = self.ss[-2]
 
-        if str(rhs)[0] == '!':
-            t1 = self.allocate_temp_variable()
-            self.program_block.append(['ADD', self.top_sp, '#' + str(rhs)[1:], t1])
-            self.i += 1
-            rhs = '@' + str(t1)
+        rhs = self.offset_to_temp(rhs)
 
-        if str(lhs)[0] == '!':
-            t1 = self.allocate_temp_variable()
-            self.program_block.append(['ADD', self.top_sp, '#' + str(lhs)[1:], t1])
-            self.i += 1
-            lhs = '@' + str(t1)
+        lhs = self.offset_to_temp(lhs)
 
         self.program_block.append(['ASSIGN', rhs, lhs, ''])
         self.i += 1
@@ -230,8 +223,14 @@ class CodeGen:
         self.ss.append(index)
         self.operate()
 
-        self.ss.append('+')
+        t1 = self.allocate_temp_variable()
+        self.ss.append(t1)
         self.ss.append(array_pointer)
+        self.assign()
+        self.ss_pop(1)
+
+        self.ss.append('+')
+        self.ss.append('@' + str(t1))
         self.operate()
 
     def flush_program_block(self):
@@ -254,17 +253,9 @@ class CodeGen:
         rhs1 = self.ss[-3]
         rhs2 = self.ss[-1]
 
-        if str(rhs1)[0] == '!':
-            t1 = self.allocate_temp_variable()
-            self.program_block.append(['ADD', self.top_sp, '#' + str(rhs1)[1:], t1])
-            self.i += 1
-            rhs1 = '@' + str(t1)
+        rhs1 = self.offset_to_temp(rhs1)
 
-        if str(rhs2)[0] == '!':
-            t1 = self.allocate_temp_variable()
-            self.program_block.append(['ADD', self.top_sp, '#' + str(rhs2)[1:], t1])
-            self.i += 1
-            rhs2 = '@' + str(t1)
+        rhs2 = self.offset_to_temp(rhs2)
 
         lhs_offset = self.allocate_local_data(4)
         lhs = self.allocate_temp_variable()
@@ -296,7 +287,9 @@ class CodeGen:
 
     def repeat_jump(self):
         # First, complete conditional jump
-        self.program_block.append(['JPF', self.ss[-1], self.ss[-2], ''])
+        condition = self.ss[-1]
+        condition = self.offset_to_temp(condition)
+        self.program_block.append(['JPF', condition, self.ss[-2], ''])
         self.i += 1
         self.ss_pop(2)
 
@@ -307,17 +300,25 @@ class CodeGen:
         self.loop_counter -= 1
 
     def save_label(self):
+        self.program_block.append(['ADD', '?', '?', '?'])
         self.program_block.append(['JPF', 'condition', '?', ''])
         self.ss.append(self.i)
-        self.i += 1
+        self.i += 2
 
     def if_jpf(self):
-        self.program_block[self.ss[-1]] = ['JPF', self.ss[-2], self.i, '']
+        address = self.ss[-1]
+        condition = self.ss[-2]
+
+        condition = self.offset_to_temp_backpatching(condition, address)
+        self.program_block[address + 1] = ['JPF', condition, self.i, '']
         self.ss_pop(2)
 
     def if_jpf_save_label(self):
+        address = self.ss[-1]
+        condition = self.ss[-2]
 
-        self.program_block[self.ss[-1]] = ['JPF', self.ss[-2], self.i + 1, '']
+        condition = self.offset_to_temp_backpatching(condition, address)
+        self.program_block[address + 1] = ['JPF', condition, self.i + 1, '']
         self.ss_pop(2)
 
         self.program_block.append(['JP', '?', '', ''])
@@ -383,19 +384,32 @@ class CodeGen:
         self.ss.append(self.i)
 
     def call_func(self):
-        # set callee's top_sp with next empty offset
-        self.ss.append('!' + str(4 + self.offset_pointer))
-        self.ss.append(self.top_sp)
-        self.assign()
-        self.ss_pop(1)
 
-        # TODO : semantic check (c and f)
         # extract arguments from semantic stack.
         args = []
         while type(self.ss[-1]) != tuple:
             args.insert(0, self.ss[-1])
             self.ss_pop(1)
         arg_type_list, address = self.ss[-1]
+        self.ss_pop(1)
+
+        # TODO : semantic check (c and f)
+
+        # check if the function call is for print
+        if address == -1:
+            arg = str(args[0])
+
+            arg = self.offset_to_temp(arg)
+
+            self.program_block.append(['PRINT', arg, '', ''])
+            self.i += 1
+            self.ss.append('#0')  # TODO : its type is void
+            return
+
+        # set callee's top_sp with next empty offset
+        self.ss.append('!' + str(4 + self.offset_pointer))
+        self.ss.append(self.top_sp)
+        self.assign()
         self.ss_pop(1)
 
         # assign arguments to callee's activation frame
@@ -405,11 +419,15 @@ class CodeGen:
             self.assign()
             self.ss_pop(1)
 
-        # set callee's return address
+        # set callee's return address the line after JP to callee
         self.ss.append('!' + str(8 + self.offset_pointer))
-        self.ss.append('#' + str(self.i + 3))
+        self.ss.append('#' + str(self.i + 4))
         self.assign()
         self.ss_pop(1)
+
+        # update top_sp for callee's frame
+        self.program_block.append(['ADD', self.top_sp, '#' + str(self.offset_pointer), self.top_sp, ''])
+        self.i += 1
 
         # jump to callee
         self.program_block.append(['JP', str(address), '', ''])
@@ -418,6 +436,27 @@ class CodeGen:
         # push return value into semantic stack
         t1 = self.allocate_local_data(4)
         self.ss.append('!' + str(t1))
+
+    def offset_to_temp(self, expression):
+        print(f'on line {self.i} offset {expression} is converting to ', end='')
+        if str(expression)[0] == '!':
+            t1 = self.allocate_temp_variable()
+            self.program_block.append(['ADD', self.top_sp, '#' + str(expression)[1:], t1])
+            self.i += 1
+            expression = '@' + str(t1)
+        print(expression)
+        return expression
+
+    def offset_to_temp_backpatching(self, expression, address):
+        print(f'on line {self.i} offset {expression} is converting to ', end='')
+        if str(expression)[0] == '!':
+            t1 = self.allocate_temp_variable()
+            self.program_block[address] = ['ADD', self.top_sp, '#' + str(expression)[1:], t1]
+            expression = '@' + str(t1)
+        else:
+            self.program_block[address] = ['JP', address + 1, '', '']
+        print(expression)
+        return expression
 
     def return_void(self):
         # put void return value at !0
@@ -437,18 +476,20 @@ class CodeGen:
         self.ss_pop(1)
 
         # extract return address from !8
-        t1 = self.allocate_temp_variable()
-        self.program_block.append(['ADD', self.top_sp, '#' + str(8), t1])
+        self.program_block.append(['ADD', self.top_sp, '#' + str(8), self.return_jump])
         self.i += 1
 
         # restore top_sp from !4
-        self.ss.append(100)
+        self.ss.append(self.top_sp)
         self.ss.append('!4')
         self.assign()
         self.ss_pop(1)
 
+        self.program_block.append(['ASSIGN', '@' + str(self.return_jump), self.return_jump, ''])
+        self.i += 1
+
         # return to caller
-        self.program_block.append(['JP', '@' + str(t1), '', ''])
+        self.program_block.append(['JP', '@' + str(self.return_jump), '', ''])
         self.i += 1
 
     def jp_main(self):
