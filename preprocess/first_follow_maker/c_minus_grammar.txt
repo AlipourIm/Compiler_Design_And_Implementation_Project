@@ -1,4 +1,4 @@
-Program -> Declaration_list $
+Program -> Declaration_list #jp_main $
 Declaration_list -> Declaration Declaration_list
 Declaration_list -> ε
 Declaration -> Declaration_initial Declaration_prime
@@ -33,8 +33,8 @@ Else_stmt -> endif #if_jpf
 Else_stmt -> else #if_jpf_save_label Statement endif #then_jp
 Iteration_stmt -> repeat #label #inc_loop_cnt Statement until ( Expression ) #repeat_jump
 Return_stmt -> return Return_stmt_prime
-Return_stmt_prime -> ;
-Return_stmt_prime -> Expression ;
+Return_stmt_prime -> #return_void ;
+Return_stmt_prime -> Expression #return_exp ;
 Expression -> Simple_expression_zegond
 Expression -> #push_id ID B
 B -> = Expression #assign
@@ -63,11 +63,11 @@ G -> ε
 Factor -> ( Expression )
 Factor -> #push_id ID Var_call_prime
 Factor -> #push_num NUM
-Var_call_prime -> ( Args )
+Var_call_prime -> ( Args ) #call_func
 Var_call_prime -> Var_prime
 Var_prime -> [ Expression ] #indirect_addr
 Var_prime -> ε
-Factor_prime -> ( Args )
+Factor_prime -> ( Args ) #call_func
 Factor_prime -> ε
 Factor_zegond -> ( Expression )
 Factor_zegond -> #push_num NUM

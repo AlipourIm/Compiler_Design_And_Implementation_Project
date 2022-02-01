@@ -22,3 +22,7 @@
 22) #end_arr_param : uses #1 and #2 and completes definition of array param by calling symbol table and setting its offset.
 23) #end_var_param : uses #1 and #2 and completes definition of variable param by calling symbol table and setting its offset.
 24) #start_var_param : insert function lexeme to symbol table
+25) #call_func : calls function
+26) #return_void : return void procedure in callee
+27) #return_exp : return expression procedure in callee
+28) #jp_main : perform back patching to jump to main

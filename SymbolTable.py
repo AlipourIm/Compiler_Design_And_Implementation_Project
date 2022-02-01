@@ -39,7 +39,7 @@ class SymbolTable:
                          var_arr_func='array' if no_arg_cell else 'var', is_param=True))
 
     @staticmethod
-    def declare_function(lexeme, type_arg):
+    def declare_function(lexeme, type_arg, address):
         print(f"declaring function \"{lexeme}\"...")
         no_arg_cell = 0
         no_var = 0
@@ -51,6 +51,8 @@ class SymbolTable:
                 symbol_record.no_arg_cell = no_arg_cell
                 symbol_record.var_arr_func = 'func'
                 symbol_record.no_var = no_var
+                symbol_record.address = address
+                symbol_record.scope = 0
                 symbol_record.arg_type_list = arg_type_list[::-1]
                 return
             else:
@@ -68,6 +70,20 @@ class SymbolTable:
         for symbol_record in tmp_table:
             if symbol_record.lexeme == lexeme:
                 return symbol_record.scope == 0
+
+    @staticmethod
+    def is_function(lexeme):
+        tmp_table = SymbolTable.symbol_table[::-1]
+        for symbol_record in tmp_table:
+            if symbol_record.lexeme == lexeme:
+                return symbol_record.var_arr_func == 'func'
+
+    @staticmethod
+    def find_function(lexeme):
+        tmp_table = SymbolTable.symbol_table[::-1]
+        for symbol_record in tmp_table:
+            if symbol_record.lexeme == lexeme:
+                return symbol_record.arg_type_list, symbol_record.address
 
     @staticmethod
     def find_address(lexeme):

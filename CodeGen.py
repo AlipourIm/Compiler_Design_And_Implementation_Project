@@ -15,6 +15,10 @@ class CodeGen:
         # number for each instance
         self.loop_counter = 0  # A counter for loops that has not been finished yet.
         self.offset_pointer = 0
+        self.current_func_lexeme = None
+        self.program_block.append(['ASSIGN', '@' + str(500), '#' + str(100), ''])
+        self.program_block.append(['JP', 'main address ?', '', ''])
+        self.i += 2
 
     def code_gen(self, action_symbol, token):
 
@@ -70,6 +74,14 @@ class CodeGen:
             self.end_decl_fun()
         elif action_symbol == '#start_decl_fun':
             self.start_decl_fun()
+        elif action_symbol == '#call_func':
+            self.call_func()
+        elif action_symbol == '#return_void':
+            self.return_void()
+        elif action_symbol == '#return_exp':
+            self.return_exp()
+        elif action_symbol == '#jp_main':
+            self.jp_main()
 
 
         else:
@@ -83,11 +95,13 @@ class CodeGen:
 
     def push_id(self, token):
         lexeme = token[0]
-        if SymbolTable.is_global(lexeme):
-            self.ss.append(SymbolTable.find_address(lexeme))
+        if SymbolTable.is_function(lexeme):
+            self.ss.append(SymbolTable.find_function(lexeme))
         else:
-            offset = SymbolTable.find_offset(lexeme)
-            self.ss.append('!' + str(SymbolTable.find_offset(lexeme)))
+            if SymbolTable.is_global(lexeme):
+                self.ss.append(SymbolTable.find_address(lexeme))
+            else:
+                self.ss.append('!' + str(SymbolTable.find_offset(lexeme)))
 
     def end_decl_var(self):
         type_arg = self.ss[-2]
@@ -181,7 +195,7 @@ class CodeGen:
 
     def inc_scope(self):
         self.scope += 1
-        self.offset_pointer = 0
+        self.offset_pointer = 12
 
     def dec_scope(self):
         self.scope -= 1
@@ -348,15 +362,95 @@ class CodeGen:
         self.ss_pop(2)
 
     def end_decl_fun(self):
-        type_arg = self.ss[-2]
-        lexeme = self.ss[-1]
+        type_arg = self.ss[-3]
+        lexeme = self.ss[-2]
+        address = self.ss[-1]
 
-        SymbolTable.declare_function(lexeme, type_arg)
+        SymbolTable.declare_function(lexeme, type_arg, address)
 
-        self.ss_pop(2)
+        self.ss_pop(3)
+
+        # TODO : what if type_arg is int
+        self.return_void()
 
     def start_decl_fun(self):
         type_arg = self.ss[-2]
         lexeme = self.ss[-1]
+        self.current_func_lexeme = lexeme
 
         SymbolTable.add_symbol(lexeme)
+
+        self.ss.append(self.i)
+
+    def call_func(self):
+        # set callee's top_sp with next empty offset
+        self.ss.append('!' + str(4 + self.offset_pointer))
+        self.ss.append(self.top_sp)
+        self.assign()
+        self.ss_pop(1)
+
+        # TODO : semantic check (c and f)
+        # extract arguments from semantic stack.
+        args = []
+        while type(self.ss[-1]) != tuple:
+            args.insert(0, self.ss[-1])
+            self.ss_pop(1)
+        arg_type_list, address = self.ss[-1]
+        self.ss_pop(1)
+
+        # assign arguments to callee's activation frame
+        for counter in range(len(arg_type_list)):
+            self.ss.append('!' + str(12 + (4 * counter) + self.offset_pointer))
+            self.ss.append(args[counter])
+            self.assign()
+            self.ss_pop(1)
+
+        # set callee's return address
+        self.ss.append('!' + str(8 + self.offset_pointer))
+        self.ss.append('#' + str(self.i + 3))
+        self.assign()
+        self.ss_pop(1)
+
+        # jump to callee
+        self.program_block.append(['JP', str(address), '', ''])
+        self.i += 1
+
+        # push return value into semantic stack
+        t1 = self.allocate_local_data(4)
+        self.ss.append('!' + str(t1))
+
+    def return_void(self):
+        # put void return value at !0
+        self.ss.append('#0')
+        self.return_exp()
+
+    def return_exp(self):
+        if self.current_func_lexeme == 'main':
+            self.ss_pop(1)
+            return
+        # put return value at !0 ( @top_sp )
+        exp = self.ss[-1]
+        self.ss_pop(1)
+        self.ss.append('@' + str(self.top_sp))
+        self.ss.append(exp)
+        self.assign()
+        self.ss_pop(1)
+
+        # extract return address from !8
+        t1 = self.allocate_temp_variable()
+        self.program_block.append(['ADD', self.top_sp, '#' + str(8), t1])
+        self.i += 1
+
+        # restore top_sp from !4
+        self.ss.append(100)
+        self.ss.append('!4')
+        self.assign()
+        self.ss_pop(1)
+
+        # return to caller
+        self.program_block.append(['JP', '@' + str(t1), '', ''])
+        self.i += 1
+
+    def jp_main(self):
+        _, address = SymbolTable.find_function('main')
+        self.program_block[1] = ['JP', address, '', '']
