@@ -45,7 +45,6 @@ class SymbolTable:
     def declare_function(lexeme, type_arg, address):
         print(f"declaring function \"{lexeme}\"...")
         no_arg_cell = 0
-        no_var = 0
         arg_type_list = []
         tmp_table = SymbolTable.symbol_table[::-1]
         for symbol_record in tmp_table:
@@ -53,17 +52,21 @@ class SymbolTable:
                 symbol_record.type = type_arg
                 symbol_record.no_arg_cell = no_arg_cell
                 symbol_record.var_arr_func = 'func'
-                symbol_record.no_var = no_var
                 symbol_record.address = address
                 symbol_record.scope = 0
                 symbol_record.arg_type_list = arg_type_list[::-1]
                 return
             else:
-                if symbol_record.is_param:
-                    no_arg_cell += 1
-                    arg_type_list.append((symbol_record.type, symbol_record.var_arr_func))
-                else:
-                    no_var += 1
+                no_arg_cell += 1
+                arg_type_list.append((symbol_record.type, symbol_record.var_arr_func))
+
+    @staticmethod
+    def pop_function_locals(lexeme):
+        tmp_table = SymbolTable.symbol_table[::-1]
+        for symbol_record in tmp_table:
+            if symbol_record.lexeme == lexeme:
+                return
+            else:
                 SymbolTable.symbol_table.pop()
                 print(f"popping symbol {symbol_record.lexeme}")
 
@@ -118,7 +121,7 @@ class SymbolTable:
 
 class SymbolRecord:
     def __init__(self, lexeme, is_keyword=False, address=None, type_=None, scope=None, var_arr_func=None,
-                 no_arg_cell=None, offset=None, is_param=False, no_var=None, arg_type_list=[]):
+                 no_arg_cell=None, offset=None, is_param=False, arg_type_list=[]):
         self.lexeme = lexeme
         self.is_keyword = is_keyword
         self.address = address
@@ -128,12 +131,10 @@ class SymbolRecord:
         self.no_arg_cell = no_arg_cell
         self.offset = offset
         self.is_param = is_param
-        self.no_var = no_var
         self.arg_type_list = arg_type_list
 
     def __str__(self):
         return f'lexeme: {self.lexeme}, isKeyword: {self.is_keyword}, address: {self.address}, offset: {self.offset}, ' \
                f'type: {self.type}, var_arr_func: {self.var_arr_func}, no_arg_cell: {self.no_arg_cell}, ' \
-               f'no_var: {self.no_var} ' \
                f'scope: {self.scope} ' \
                f'arg_type_list: {self.arg_type_list}'

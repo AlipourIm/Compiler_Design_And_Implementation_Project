@@ -72,10 +72,12 @@ class CodeGen:
             self.end_var_param()
         elif action_symbol == '#end_arr_param':
             self.end_arr_param()
-        elif action_symbol == '#end_decl_fun':
-            self.end_decl_fun()
+        elif action_symbol == '#jump_over_func':
+            self.jump_over_func()
         elif action_symbol == '#start_decl_fun':
             self.start_decl_fun()
+        elif action_symbol == '#end_decl_func':
+            self.end_decl_func()
         elif action_symbol == '#call_func':
             self.call_func()
         elif action_symbol == '#return_void':
@@ -373,14 +375,20 @@ class CodeGen:
         # push the address for first line of function
         self.ss.append(self.i)
 
-    def end_decl_fun(self):
+    def end_decl_func(self):
         type_arg = self.ss[-3]
         lexeme = self.ss[-2]
         address = self.ss[-1]
 
         SymbolTable.declare_function(lexeme, type_arg, address)
 
+    def jump_over_func(self):
+        type_arg = self.ss[-3]
+        lexeme = self.ss[-2]
+        address = self.ss[-1]
+
         self.ss_pop(3)
+        SymbolTable.pop_function_locals(lexeme)
 
         # TODO : what if type_arg is int
         self.return_void()
