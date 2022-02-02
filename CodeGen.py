@@ -24,7 +24,6 @@ class CodeGen:
 
     def code_gen(self, action_symbol, token, line):
         self.line = line
-        print(self.ss)
         if action_symbol == "#push_type":
             self.push_type(token)
         elif action_symbol == '#push_id':
@@ -87,8 +86,6 @@ class CodeGen:
             self.jp_main()
         elif action_symbol == '#assign_to_local':
             self.assign_to_local()
-
-        print(self.ss)
 
     def push_type(self, token):
         self.ss.append(token[0])
@@ -242,8 +239,6 @@ class CodeGen:
 
     def flush_program_block(self):
 
-        print("number of codes generated = ", self.i)
-
         if len(self.program_block) == 0:
             self.program_block_file.write("The code has not been generated.")
 
@@ -268,13 +263,15 @@ class CodeGen:
 
         # innovative semantic error in case of operating int with void
         if rhs1[1] != rhs2[1]:
-            ErrorHandler.catch_semantic_error(self.line, f"Semantic Error! Type mismatch in operands, Got void instead of int.")
+            ErrorHandler.catch_semantic_error(self.line,
+                                              f"Semantic Error! Type mismatch in operands, Got void instead of int.")
             self.ss.append([None, None, None])
             return
 
         # semantic error in case of operating array with var (supposing int)
         if rhs1[2] != rhs2[2]:
-            ErrorHandler.catch_semantic_error(self.line, f"Semantic Error! Type mismatch in operands, Got array instead of int.")
+            ErrorHandler.catch_semantic_error(self.line,
+                                              f"Semantic Error! Type mismatch in operands, Got array instead of int.")
             self.ss.append([None, None, None])
             return
 
@@ -348,7 +345,6 @@ class CodeGen:
         self.i += 1
 
     def then_jp(self):
-        print("size of prigram_block: ", len(self.program_block), " / ", self.i)
         self.program_block[self.ss[-1]] = ['JP', self.i, '', '']
         self.ss_pop(1)
 
@@ -419,7 +415,6 @@ class CodeGen:
         # TODO : what if type_arg is int
         self.return_void()
 
-        print("address for jump over function: ", address)
         # back-patching, fill jump from before of function to after of function
         if lexeme == 'main':
             self.program_block[address - 1] = ['JP', address, '', '']
@@ -437,18 +432,21 @@ class CodeGen:
 
         # semantic check 'c' for mismatch in number of arguments
         if len(args) != len(arg_type_list):
-            ErrorHandler.catch_semantic_error(self.line, f"Semantic Error! Mismatch in numbers of arguments of '{lexeme}'.")
+            ErrorHandler.catch_semantic_error(self.line,
+                                              f"Semantic Error! Mismatch in numbers of arguments of '{lexeme}'.")
             self.ss.append([None, return_type, 'var'])
             return
 
         #  semantic check 'f' for mismatch type in any argument
         for i in range(len(args)):
             if arg_type_list[i][1] == 'var' and args[i][2] == 'array':
-                ErrorHandler.catch_semantic_error(self.line, f"Semantic Error! Mismatch in type of argument {i+1} of '{lexeme}'. Expected 'int' but got 'array' instead.")
+                ErrorHandler.catch_semantic_error(self.line,
+                                                  f"Semantic Error! Mismatch in type of argument {i + 1} of '{lexeme}'. Expected 'int' but got 'array' instead.")
                 self.ss.append([None, return_type, 'var'])
                 return
             if arg_type_list[i][1] == 'array' and args[i][2] == 'var':
-                ErrorHandler.catch_semantic_error(self.line, f"Semantic Error! Mismatch in type of argument {i+1} of '{lexeme}'. Expected 'array' but got 'int' instead.")
+                ErrorHandler.catch_semantic_error(self.line,
+                                                  f"Semantic Error! Mismatch in type of argument {i + 1} of '{lexeme}'. Expected 'array' but got 'int' instead.")
                 self.ss.append([None, return_type, 'var'])
                 return
 

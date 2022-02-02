@@ -10,12 +10,6 @@ class SymbolTable:
         # put special symbol for output function which will handle PRINT
         self.symbol_table.append(SymbolRecord(lexeme = 'output', type_='void', address=-1, scope=0, var_arr_func='func', no_arg_cell=1, arg_type_list=[('int', 'var')]))
 
-    def add_row(self, lexeme):
-        pass
-
-    def print_table_phase1(self):
-        pass
-
     @staticmethod
     def add_symbol(lexeme):
         for symbol_record in SymbolTable.symbol_table:
@@ -43,7 +37,6 @@ class SymbolTable:
 
     @staticmethod
     def declare_function(lexeme, type_arg, address):
-        print(f"declaring function \"{lexeme}\"...")
         no_arg_cell = 0
         arg_type_list = []
         tmp_table = SymbolTable.symbol_table[::-1]
@@ -68,7 +61,6 @@ class SymbolTable:
                 return
             else:
                 SymbolTable.symbol_table.pop()
-                print(f"popping symbol {symbol_record.lexeme}")
 
     @staticmethod
     def is_global(lexeme):

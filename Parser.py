@@ -73,7 +73,6 @@ class Parser:
                     action = at.table[self.current_node_id][terminal_id]
 
                 elif action[0] == 'action_symbol':
-                    print("new action symbol: ", action)
                     code_gen.code_gen(action[1], token, self.line)
                     self.current_node_id = action[2]
                     action = at.table[self.current_node_id][terminal_id]
@@ -106,7 +105,6 @@ class Parser:
                 if self.tokens_in_line[-1] != "\t":
                     self.tokens_file.write(self.tokens_in_line + "\n")
                 # flush ErrorHandler for last line
-                print(code_gen.ss)
                 code_gen.flush_program_block()
                 ErrorHandler.flush_lexical_error()
                 ErrorHandler.flush_syntax_error()
