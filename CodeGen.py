@@ -100,7 +100,7 @@ class CodeGen:
         lexeme = token[0]
         if not SymbolTable.exists(lexeme):
             ErrorHandler.catch_semantic_error(self.line, f"Semantic Error! '{lexeme}' is not defined.")
-            self.ss.append(None)
+            self.ss.append([None, None, None])
             return
 
         if SymbolTable.is_function(lexeme):
@@ -109,7 +109,7 @@ class CodeGen:
             if SymbolTable.is_global(lexeme):
                 self.ss.append(SymbolTable.find_address(lexeme))
             else:
-                self.ss.append('!' + str(SymbolTable.find_offset(lexeme)))
+                self.ss.append(SymbolTable.find_offset(lexeme))
 
     def end_decl_var(self):
         type_arg = self.ss[-2]
@@ -126,7 +126,7 @@ class CodeGen:
             SymbolTable.declare_global_variable(lexeme, address, type_arg, self.scope)
 
             # push the address for upcoming assign to zero
-            self.ss.append(address)
+            self.ss.append([address, type_arg, 'var'])
 
         # if in the function scope, set an offset for local variable
         else:
@@ -134,19 +134,21 @@ class CodeGen:
             SymbolTable.declare_local_variable(lexeme, offset, type_arg, self.scope)
 
             # push the offset for upcoming assign to zero
-            self.ss.append('!' + str(offset))
+            self.ss.append(['!' + str(offset), type_arg, 'var'])
 
-        self.ss.append('#0')
+        self.ss.append(['#0', 'int', 'var'])
         self.assign()
         self.ss_pop(1)
 
     def end_decl_arr(self):
-        no_arg_cell = int(self.ss[-1][1:])  # convert (#123, string) to (123, int)
+        no_arg_cell = int(self.ss[-1][0][1:])  # convert (#123, string) to (123, int)
         lexeme = self.ss[-2]
         type_arg = self.ss[-3]
         self.ss_pop(3)
 
-        #   TODO : handle 'void type' semantic error.
+        if type_arg == 'void':
+            ErrorHandler.catch_semantic_error(self.line, f"Semantic Error! Illegal type of void for '{lexeme}'.")
+            return
 
         if self.scope == 0:
             address = self.allocate_static_data(4 * (1 + no_arg_cell))
@@ -157,8 +159,8 @@ class CodeGen:
             self.i += 1
             # ASSIGN 0 to all elements of the new declared array
             for cell in range(no_arg_cell):
-                self.ss.append(4 * cell + 4 + address)
-                self.ss.append('#0')
+                self.ss.append([4 * cell + 4 + address, type_arg, 'var'])
+                self.ss.append(['#0', 'int', 'var'])
                 self.assign()
                 self.ss_pop(1)
 
@@ -170,17 +172,17 @@ class CodeGen:
             t1 = self.allocate_temp_variable()
             self.program_block.append(['ADD', self.top_sp, '#' + str(4 + offset), t1])
             self.i += 1
-            rhs = str(t1)
+            rhs = [str(t1), 'int', 'var']
 
-            self.ss.append('!' + str(offset))
+            self.ss.append(['!' + str(offset), 'int', 'var'])
             self.ss.append(rhs)
             self.assign()
             self.ss_pop(1)
 
             # ASSIGN 0 to all elements of the new declared array
             for cell in range(no_arg_cell):
-                self.ss.append('!' + str(4 * cell + 4 + offset))
-                self.ss.append('#0')
+                self.ss.append(['!' + str(4 * cell + 4 + offset), 'int', 'var'])
+                self.ss.append(['#0', 'int', 'var'])
                 self.assign()
                 self.ss_pop(1)
 
@@ -201,7 +203,7 @@ class CodeGen:
             self.ss.pop()
 
     def push_num(self, token):
-        self.ss.append('#' + token[0])
+        self.ss.append(['#' + token[0], 'int', 'var'])
 
     def inc_scope(self):
         self.scope += 1
@@ -214,11 +216,11 @@ class CodeGen:
         rhs = self.ss[-1]
         lhs = self.ss[-2]
 
-        rhs = self.offset_to_temp(rhs)
+        rhs[0] = self.offset_to_temp(rhs[0])
 
-        lhs = self.offset_to_temp(lhs)
+        lhs[0] = self.offset_to_temp(lhs[0])
 
-        self.program_block.append(['ASSIGN', rhs, lhs, ''])
+        self.program_block.append(['ASSIGN', rhs[0], lhs[0], ''])
         self.i += 1
         self.ss_pop(1)
 
@@ -227,16 +229,16 @@ class CodeGen:
         array_pointer = self.ss[-2]
         self.ss_pop(2)
 
-        self.ss.append('#4')
+        self.ss.append(['#4', 'int', 'var'])
         self.ss.append('*')
-        self.ss.append(index)
+        self.ss.append(index[0])
         self.operate()
 
         self.ss.append('+')
-        self.ss.append(array_pointer)
+        self.ss.append([array_pointer[0], 'int', 'var'])
         self.operate()
 
-        self.ss[-1] = '@' + self.ss[-1]
+        self.ss[-1][0] = '@' + self.ss[-1][0]
 
     def flush_program_block(self):
 
@@ -258,30 +260,30 @@ class CodeGen:
         rhs1 = self.ss[-3]
         rhs2 = self.ss[-1]
 
-        rhs1 = self.offset_to_temp(rhs1)
+        rhs1[0] = self.offset_to_temp(rhs1[0])
 
-        rhs2 = self.offset_to_temp(rhs2)
+        rhs2[0] = self.offset_to_temp(rhs2[0])
 
         lhs_offset = self.allocate_local_data(4)
-        lhs = self.allocate_temp_variable()
-        self.program_block.append(['ADD', self.top_sp, '#' + str(lhs_offset), lhs])
+        lhs = [self.allocate_temp_variable(), rhs1[1], rhs1[2]]
+        self.program_block.append(['ADD', self.top_sp, '#' + str(lhs_offset), lhs[0]])
         self.i += 1
-        lhs = '@' + str(lhs)
+        lhs[0] = '@' + str(lhs[0])
 
         if self.ss[-2] == '+':
-            self.program_block.append(['ADD', rhs1, rhs2, lhs])
+            self.program_block.append(['ADD', rhs1[0], rhs2[0], lhs[0]])
         elif self.ss[-2] == '-':
-            self.program_block.append(['SUB', rhs1, rhs2, lhs])
+            self.program_block.append(['SUB', rhs1[0], rhs2[0], lhs[0]])
         elif self.ss[-2] == '*':
-            self.program_block.append(['MULT', rhs1, rhs2, lhs])
+            self.program_block.append(['MULT', rhs1[0], rhs2[0], lhs[0]])
         elif self.ss[-2] == '<':
-            self.program_block.append(['LT', rhs1, rhs2, lhs])
+            self.program_block.append(['LT', rhs1[0], rhs2[0], lhs[0]])
         elif self.ss[-2] == '==':
-            self.program_block.append(['EQ', rhs1, rhs2, lhs])
+            self.program_block.append(['EQ', rhs1[0], rhs2[0], lhs[0]])
 
         self.i += 1
         self.ss_pop(3)
-        self.ss.append('!' + str(lhs_offset))
+        self.ss.append(['!' + str(lhs_offset), lhs[1], lhs[2]])
 
     def pop_exp(self):
         # TODO : what if the result of expression is void? like output(p)
@@ -292,7 +294,7 @@ class CodeGen:
 
     def repeat_jump(self):
         # First, complete conditional jump
-        condition = self.ss[-1]
+        condition = self.ss[-1][0]
         condition = self.offset_to_temp(condition)
         self.program_block.append(['JPF', condition, self.ss[-2], ''])
         self.i += 1
@@ -312,7 +314,7 @@ class CodeGen:
 
     def if_jpf(self):
         address = self.ss[-1]
-        condition = self.ss[-2]
+        condition = self.ss[-2][0]
 
         condition = self.offset_to_temp_backpatching(condition, address)
         self.program_block[address + 1] = ['JPF', condition, self.i, '']
@@ -320,7 +322,7 @@ class CodeGen:
 
     def if_jpf_save_label(self):
         address = self.ss[-1]
-        condition = self.ss[-2]
+        condition = self.ss[-2][0]
 
         condition = self.offset_to_temp_backpatching(condition, address)
         self.program_block[address + 1] = ['JPF', condition, self.i + 1, '']
@@ -414,42 +416,43 @@ class CodeGen:
         while type(self.ss[-1]) != tuple:
             args.insert(0, self.ss[-1])
             self.ss_pop(1)
-        arg_type_list, address, lexeme = self.ss[-1]
+        arg_type_list, address, lexeme, return_type = self.ss[-1]
         self.ss_pop(1)
 
         if len(args) != len(arg_type_list):
             ErrorHandler.catch_semantic_error(self.line, f"Semantic Error! Mismatch in numbers of arguments of '{lexeme}'.")
-            self.ss.append(None)
+            self.ss.append([None, return_type, 'var'])
             return
         # TODO : semantic check 'f'
 
         # check if the function call is for print
         if address == -1:
-            arg = str(args[0])
+            arg = args[0]
 
-            arg = self.offset_to_temp(arg)
+            arg[0] = self.offset_to_temp(arg[0])
 
-            self.program_block.append(['PRINT', arg, '', ''])
+            self.program_block.append(['PRINT', arg[0], '', ''])
             self.i += 1
-            self.ss.append('#0')  # TODO : its type is void
+            self.ss.append(['#0', 'void', 'var'])
             return
 
         # set callee's top_sp with next empty offset
-        self.ss.append('!' + str(4 + self.offset_pointer))
-        self.ss.append(self.top_sp)
+        self.ss.append(['!' + str(4 + self.offset_pointer), 'int', 'var'])
+        self.ss.append([self.top_sp, 'int', 'var'])
         self.assign()
         self.ss_pop(1)
 
         # assign arguments to callee's activation frame
         for counter in range(len(arg_type_list)):
-            self.ss.append('!' + str(12 + (4 * counter) + self.offset_pointer))
+            self.ss.append(['!' + str(12 + (4 * counter) + self.offset_pointer), 'int', 'var'])
+            # TODO : semantic check parameter mismatch
             self.ss.append(args[counter])
             self.assign()
             self.ss_pop(1)
 
         # set callee's return address the line after JP to callee
-        self.ss.append('!' + str(8 + self.offset_pointer))
-        self.ss.append('#' + str(self.i + 4))
+        self.ss.append(['!' + str(8 + self.offset_pointer), 'int', 'var'])
+        self.ss.append(['#' + str(self.i + 4), 'int', 'var'])
         self.assign()
         self.ss_pop(1)
 
@@ -463,7 +466,7 @@ class CodeGen:
 
         # push return value into semantic stack
         t1 = self.allocate_local_data(4)
-        self.ss.append('!' + str(t1))
+        self.ss.append(['!' + str(t1), return_type, 'var'])
 
     def offset_to_temp(self, expression):
         if str(expression)[0] == '!':
@@ -491,7 +494,7 @@ class CodeGen:
 
     def return_void(self):
         # put void return value at !0
-        self.ss.append('#0')
+        self.ss.append(['#0', 'void', 'var'])
         self.return_exp()
 
     def return_exp(self):
@@ -501,7 +504,7 @@ class CodeGen:
         # put return value at !0(@top_sp)
         exp = self.ss[-1]
         self.ss_pop(1)
-        self.ss.append('@' + str(self.top_sp))
+        self.ss.append(['@' + str(self.top_sp), exp[1], exp[2]])
         self.ss.append(exp)
         self.assign()
         self.ss_pop(1)
@@ -511,8 +514,8 @@ class CodeGen:
         self.i += 1
 
         # restore top_sp from !4
-        self.ss.append(self.top_sp)
-        self.ss.append('!4')
+        self.ss.append([self.top_sp, 'int', 'var'])
+        self.ss.append(['!4', 'int', 'var'])
         self.assign()
         self.ss_pop(1)
 
@@ -533,6 +536,6 @@ class CodeGen:
         self.ss_pop(1)
 
         t1 = self.allocate_local_data(4)
-        self.ss.append(t1)
+        self.ss.append([t1, expression[1], expression[2]])
         self.ss.append(expression)
         self.assign()

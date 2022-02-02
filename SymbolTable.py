@@ -97,7 +97,7 @@ class SymbolTable:
         tmp_table = SymbolTable.symbol_table[::-1]
         for symbol_record in tmp_table:
             if symbol_record.lexeme == lexeme:
-                return symbol_record.arg_type_list, symbol_record.address, symbol_record.lexeme
+                return symbol_record.arg_type_list, symbol_record.address, symbol_record.lexeme, symbol_record.type
         return None
 
     @staticmethod
@@ -105,7 +105,7 @@ class SymbolTable:
         tmp_table = SymbolTable.symbol_table[::-1]
         for symbol_record in tmp_table:
             if symbol_record.lexeme == lexeme:
-                return symbol_record.address
+                return [symbol_record.address, symbol_record.type, symbol_record.var_arr_func]
         return None
 
     @staticmethod
@@ -113,7 +113,7 @@ class SymbolTable:
         tmp_table = SymbolTable.symbol_table[::-1]
         for symbol_record in tmp_table:
             if symbol_record.lexeme == lexeme:
-                return symbol_record.offset
+                return ['!' + str(symbol_record.offset), symbol_record.type, symbol_record.var_arr_func]
         return None
 
     @staticmethod
