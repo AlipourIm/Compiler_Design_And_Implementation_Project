@@ -258,10 +258,23 @@ class CodeGen:
 
     def operate(self):
         rhs1 = self.ss[-3]
+        operator = self.ss[-2]
         rhs2 = self.ss[-1]
+        self.ss_pop(3)
+
+        # innovative semantic error in case of operating int with void
+        if rhs1[1] != rhs2[1]:
+            ErrorHandler.catch_semantic_error(self.line, f"Type mismatch in operands, Got void instead of int.")
+            self.ss.append([None, None, None])
+            return
+
+        # semantic error in case of operating array with var (supposing int)
+        if rhs1[2] != rhs2[2]:
+            ErrorHandler.catch_semantic_error(self.line, f"Type mismatch in operands, Got array instead of int.")
+            self.ss.append([None, None, None])
+            return
 
         rhs1[0] = self.offset_to_temp(rhs1[0])
-
         rhs2[0] = self.offset_to_temp(rhs2[0])
 
         lhs_offset = self.allocate_local_data(4)
@@ -270,23 +283,21 @@ class CodeGen:
         self.i += 1
         lhs[0] = '@' + str(lhs[0])
 
-        if self.ss[-2] == '+':
+        if operator == '+':
             self.program_block.append(['ADD', rhs1[0], rhs2[0], lhs[0]])
-        elif self.ss[-2] == '-':
+        elif operator == '-':
             self.program_block.append(['SUB', rhs1[0], rhs2[0], lhs[0]])
-        elif self.ss[-2] == '*':
+        elif operator == '*':
             self.program_block.append(['MULT', rhs1[0], rhs2[0], lhs[0]])
-        elif self.ss[-2] == '<':
+        elif operator == '<':
             self.program_block.append(['LT', rhs1[0], rhs2[0], lhs[0]])
-        elif self.ss[-2] == '==':
+        elif operator == '==':
             self.program_block.append(['EQ', rhs1[0], rhs2[0], lhs[0]])
 
         self.i += 1
-        self.ss_pop(3)
         self.ss.append(['!' + str(lhs_offset), lhs[1], lhs[2]])
 
     def pop_exp(self):
-        # TODO : what if the result of expression is void? like output(p)
         self.ss_pop(1)
 
     def label(self):
@@ -333,6 +344,7 @@ class CodeGen:
         self.i += 1
 
     def then_jp(self):
+        print("size of prigram_block: ", len(self.program_block), " / ", self.i)
         self.program_block[self.ss[-1]] = ['JP', self.i, '', '']
         self.ss_pop(1)
 
