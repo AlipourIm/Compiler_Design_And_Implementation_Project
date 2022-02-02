@@ -1,10 +1,12 @@
 class ErrorHandler:
     lexical_error_file = open("lexical_errors.txt", "w")
     syntax_error_file = open("syntax_errors.txt", "w")
+    semantic_error_file = open("semantic_errors.txt", "w")
     line = -1
     errors_in_line = ""
     number_of_lexical_errors = 0
     number_of_syntax_errors = 0
+    number_of_semantic_errors = 0
 
     def __init__(self):
         pass
@@ -19,6 +21,17 @@ class ErrorHandler:
         else:
             ErrorHandler.lexical_error_file.write(ErrorHandler.errors_in_line + "\n")
         ErrorHandler.close_file(ErrorHandler.lexical_error_file)
+
+    @staticmethod
+    def flush_semantic_error():
+        if ErrorHandler.number_of_semantic_errors == 0:
+            ErrorHandler.lexical_error_file.write("The input program is semantically correct")
+        ErrorHandler.close_file(ErrorHandler.semantic_error_file)
+
+    @staticmethod
+    def catch_semantic_error(line, message):
+        ErrorHandler.number_of_semantic_errors += 1
+        ErrorHandler.semantic_error_file.write("#" + str(line) + " : " + message + "\n")
 
     @staticmethod
     def catch_lexical_error(line, lexeme, message):
@@ -40,7 +53,6 @@ class ErrorHandler:
     def catch_syntax_error(line, message):
         ErrorHandler.number_of_syntax_errors += 1
         ErrorHandler.syntax_error_file.write("#" + str(line) + " : " + message + "\n")
-        # print("#" + str(line) + " : " + message + "\n")
 
     @staticmethod
     def flush_syntax_error():
