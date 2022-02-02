@@ -231,7 +231,7 @@ class CodeGen:
 
         self.ss.append(['#4', 'int', 'var'])
         self.ss.append('*')
-        self.ss.append(index[0])
+        self.ss.append(index)
         self.operate()
 
         self.ss.append('+')
