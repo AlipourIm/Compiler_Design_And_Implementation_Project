@@ -373,3 +373,4 @@ cython_debug/
 /our_expected.txt
 /semantic_errors.txt
 /TestCases/
+/log.txt
