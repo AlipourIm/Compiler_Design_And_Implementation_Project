@@ -238,7 +238,7 @@ class CodeGen:
         self.ss.append([array_pointer[0], 'int', 'var'])
         self.operate()
 
-        self.ss[-1][0] = '@' + self.ss[-1][0]
+        self.ss[-1][0] = '@' + str(self.ss[-1][0])
 
     def flush_program_block(self):
 
@@ -262,15 +262,19 @@ class CodeGen:
         rhs2 = self.ss[-1]
         self.ss_pop(3)
 
+        if rhs1 == [None, None, None] or rhs2 == [None, None, None]:
+            self.ss.append([None, None, None])
+            return
+
         # innovative semantic error in case of operating int with void
         if rhs1[1] != rhs2[1]:
-            ErrorHandler.catch_semantic_error(self.line, f"Type mismatch in operands, Got void instead of int.")
+            ErrorHandler.catch_semantic_error(self.line, f"Semantic Error! Type mismatch in operands, Got void instead of int.")
             self.ss.append([None, None, None])
             return
 
         # semantic error in case of operating array with var (supposing int)
         if rhs1[2] != rhs2[2]:
-            ErrorHandler.catch_semantic_error(self.line, f"Type mismatch in operands, Got array instead of int.")
+            ErrorHandler.catch_semantic_error(self.line, f"Semantic Error! Type mismatch in operands, Got array instead of int.")
             self.ss.append([None, None, None])
             return
 
@@ -431,11 +435,22 @@ class CodeGen:
         arg_type_list, address, lexeme, return_type = self.ss[-1]
         self.ss_pop(1)
 
+        # semantic check 'c' for mismatch in number of arguments
         if len(args) != len(arg_type_list):
             ErrorHandler.catch_semantic_error(self.line, f"Semantic Error! Mismatch in numbers of arguments of '{lexeme}'.")
             self.ss.append([None, return_type, 'var'])
             return
-        # TODO : semantic check 'f'
+
+        #  semantic check 'f' for mismatch type in any argument
+        for i in range(len(args)):
+            if arg_type_list[i][1] == 'var' and args[i][2] == 'array':
+                ErrorHandler.catch_semantic_error(self.line, f"Semantic Error! Mismatch in type of argument {i+1} of '{lexeme}'. Expected 'int' but got 'array' instead.")
+                self.ss.append([None, return_type, 'var'])
+                return
+            if arg_type_list[i][1] == 'array' and args[i][2] == 'var':
+                ErrorHandler.catch_semantic_error(self.line, f"Semantic Error! Mismatch in type of argument {i+1} of '{lexeme}'. Expected 'array' but got 'int' instead.")
+                self.ss.append([None, return_type, 'var'])
+                return
 
         # check if the function call is for print
         if address == -1:

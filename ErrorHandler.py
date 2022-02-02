@@ -26,6 +26,9 @@ class ErrorHandler:
     def flush_semantic_error():
         if ErrorHandler.number_of_semantic_errors == 0:
             ErrorHandler.semantic_error_file.write("The input program is semantically correct.")
+        else:
+            with open("output.txt", "w") as file:
+                file.write("The code has not been generated.")
         ErrorHandler.close_file(ErrorHandler.semantic_error_file)
 
     @staticmethod
