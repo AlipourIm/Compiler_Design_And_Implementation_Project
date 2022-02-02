@@ -25,7 +25,7 @@ class ErrorHandler:
     @staticmethod
     def flush_semantic_error():
         if ErrorHandler.number_of_semantic_errors == 0:
-            ErrorHandler.lexical_error_file.write("The input program is semantically correct")
+            ErrorHandler.semantic_error_file.write("The input program is semantically correct.")
         ErrorHandler.close_file(ErrorHandler.semantic_error_file)
 
     @staticmethod

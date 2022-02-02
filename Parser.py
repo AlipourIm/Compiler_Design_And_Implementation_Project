@@ -74,7 +74,7 @@ class Parser:
 
                 elif action[0] == 'action_symbol':
                     print("new action symbol: ", action)
-                    code_gen.code_gen(action[1], token)
+                    code_gen.code_gen(action[1], token, self.line)
                     self.current_node_id = action[2]
                     action = at.table[self.current_node_id][terminal_id]
 
@@ -110,6 +110,7 @@ class Parser:
                 code_gen.flush_program_block()
                 ErrorHandler.flush_lexical_error()
                 ErrorHandler.flush_syntax_error()
+                ErrorHandler.flush_semantic_error()
                 break
 
         SymbolTable.print_symbols()

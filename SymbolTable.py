@@ -85,11 +85,20 @@ class SymbolTable:
                 return symbol_record.var_arr_func == 'func'
 
     @staticmethod
+    def exists(lexeme):
+        tmp_table = SymbolTable.symbol_table[::-1]
+        for symbol_record in tmp_table:
+            if symbol_record.lexeme == lexeme:
+                return True
+        return False
+
+    @staticmethod
     def find_function(lexeme):
         tmp_table = SymbolTable.symbol_table[::-1]
         for symbol_record in tmp_table:
             if symbol_record.lexeme == lexeme:
-                return symbol_record.arg_type_list, symbol_record.address
+                return symbol_record.arg_type_list, symbol_record.address, symbol_record.lexeme
+        return None
 
     @staticmethod
     def find_address(lexeme):
@@ -97,6 +106,7 @@ class SymbolTable:
         for symbol_record in tmp_table:
             if symbol_record.lexeme == lexeme:
                 return symbol_record.address
+        return None
 
     @staticmethod
     def find_offset(lexeme):
@@ -104,6 +114,7 @@ class SymbolTable:
         for symbol_record in tmp_table:
             if symbol_record.lexeme == lexeme:
                 return symbol_record.offset
+        return None
 
     @staticmethod
     def get_token_type(lexeme):  # ID or KEYWORD.

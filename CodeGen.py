@@ -1,3 +1,4 @@
+from ErrorHandler import ErrorHandler
 from SymbolTable import SymbolTable
 
 
@@ -11,6 +12,7 @@ class CodeGen:
         self.static_data_pointer = 5008
         self.temp_data_pointer = 30000
         self.scope = 0
+        self.line = 0
         self.program_block_file = open("output.txt", "w")
         self.break_stack = []  # A stack for loop breaks to be back-patched consists of pairs of break_line and loop
         # number for each instance
@@ -20,10 +22,9 @@ class CodeGen:
         self.program_block.append(['ASSIGN', '#' + str(40000), self.top_sp, ''])
         self.i += 1
 
-    def code_gen(self, action_symbol, token):
-
+    def code_gen(self, action_symbol, token, line):
+        self.line = line
         print(self.ss)
-
         if action_symbol == "#push_type":
             self.push_type(token)
         elif action_symbol == '#push_id':
@@ -97,6 +98,11 @@ class CodeGen:
 
     def push_id(self, token):
         lexeme = token[0]
+        if not SymbolTable.exists(lexeme):
+            ErrorHandler.catch_semantic_error(self.line, f"Semantic Error! '{lexeme}' is not defined.")
+            self.ss.append(None)
+            return
+
         if SymbolTable.is_function(lexeme):
             self.ss.append(SymbolTable.find_function(lexeme))
         else:
@@ -110,7 +116,9 @@ class CodeGen:
         lexeme = self.ss[-1]
         self.ss_pop(2)
 
-        #   TODO : handle 'void type' semantic error.
+        if type_arg == 'void':
+            ErrorHandler.catch_semantic_error(self.line, f"Semantic Error! Illegal type of void for '{lexeme}'.")
+            return
 
         # if in the global scope, set a direct address for variable
         if self.scope == 0:
@@ -330,7 +338,9 @@ class CodeGen:
         self.loop_counter += 1
 
     def save_break(self):
-        #   TODO: handle a semantic error for when there is no loop to be braked
+        if self.loop_counter == 0:
+            ErrorHandler.catch_semantic_error(self.line, "Semantic Error! No 'repeat ... until' found for 'break'.")
+            return
         self.program_block.append(['JP', '?', '', ''])
         self.break_stack.append([self.i, self.loop_counter])
         self.i += 1
@@ -399,16 +409,19 @@ class CodeGen:
             self.program_block[address - 1] = ['JP', self.i, '', '']
 
     def call_func(self):
-
         # extract arguments from semantic stack.
         args = []
         while type(self.ss[-1]) != tuple:
             args.insert(0, self.ss[-1])
             self.ss_pop(1)
-        arg_type_list, address = self.ss[-1]
+        arg_type_list, address, lexeme = self.ss[-1]
         self.ss_pop(1)
 
-        # TODO : semantic check (c and f)
+        if len(args) != len(arg_type_list):
+            ErrorHandler.catch_semantic_error(self.line, f"Semantic Error! Mismatch in numbers of arguments of '{lexeme}'.")
+            self.ss.append(None)
+            return
+        # TODO : semantic check 'f'
 
         # check if the function call is for print
         if address == -1:
