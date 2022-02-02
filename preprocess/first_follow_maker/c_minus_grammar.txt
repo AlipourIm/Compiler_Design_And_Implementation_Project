@@ -28,7 +28,7 @@ Statement -> Return_stmt
 Expression_stmt -> Expression ; #pop_exp
 Expression_stmt -> break #save_break ;
 Expression_stmt -> ;
-Selection_stmt -> if ( Expression ) #save_label Statement Else_stmt
+Selection_stmt -> if ( Expression #assign_to_local ) #save_label Statement Else_stmt
 Else_stmt -> endif #if_jpf
 Else_stmt -> else #if_jpf_save_label Statement endif #then_jp
 Iteration_stmt -> repeat #label #inc_loop_cnt Statement until ( Expression ) #repeat_jump

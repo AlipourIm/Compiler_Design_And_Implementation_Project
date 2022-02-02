@@ -26,3 +26,4 @@
 26) #return_void : return void procedure in callee
 27) #return_exp : return expression procedure in callee
 28) #jp_main : perform back patching to jump to main
+29) #assign_to_local : allocate a local, assign condition(whether indirect like 'x[0]' or direct 'a') to local offset
