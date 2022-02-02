@@ -19,8 +19,6 @@ class CodeGen:
         self.current_func_lexeme = None
         self.program_block.append(['ASSIGN', '#' + str(40000), self.top_sp, ''])
         self.i += 1
-        # self.program_block.append(['JP', 'main address ?', '', ''])
-        # self.i += 1
 
     def code_gen(self, action_symbol, token):
 
@@ -394,7 +392,7 @@ class CodeGen:
         self.return_void()
 
         print("address for jump over function: ", address)
-        # back-patching, fill jump from before of function to after of fuction
+        # back-patching, fill jump from before of function to after of function
         if lexeme == 'main':
             self.program_block[address - 1] = ['JP', address, '', '']
         else:
@@ -470,14 +468,12 @@ class CodeGen:
         return expression
 
     def offset_to_temp_backpatching(self, expression, address):
-        # print(f'on line {self.i} offset {expression} is converting to ', end='')
         if str(expression)[0] == '!':
             t1 = self.allocate_temp_variable()
             self.program_block[address] = ['ADD', self.top_sp, '#' + str(expression)[1:], t1]
             expression = '@' + str(t1)
         else:
             self.program_block[address] = ['JP', address + 1, '', '']
-        # print(expression)
         return expression
 
     def return_void(self):
@@ -489,7 +485,7 @@ class CodeGen:
         if self.current_func_lexeme == 'main':
             self.ss_pop(1)
             return
-        # put return value at !0 ( @top_sp )
+        # put return value at !0(@top_sp)
         exp = self.ss[-1]
         self.ss_pop(1)
         self.ss.append('@' + str(self.top_sp))
@@ -527,4 +523,3 @@ class CodeGen:
         self.ss.append(t1)
         self.ss.append(expression)
         self.assign()
-

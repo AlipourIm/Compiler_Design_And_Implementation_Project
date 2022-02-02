@@ -8,22 +8,22 @@
 08) #push_id : pushes address assigned to ID into stack.
 09) #push_op : push the operator symbol like +,-,==,<,* into semantic stack.
 10) #operate : perform the binary operation which its operands and operator has been pushed already.
-11) #indirect_addr : allocate a temp variable and save indirect addr for ID[EXP], pop(2) and push(temp).
+11) #indirect_addr : allocate a temp variable and save indirect address for ID[EXP], pop(2) and push(temp).
 12) #assign : assign top of stack into top-1 of stack and pop(1).
 13) #pop_exp : pop the expression result from stack if semicolon is seen.
 14) #label : push into ss the label for next upcoming code in program block (push(i)).
 15) #repeat_jump : add code to jump to first of loop if until condition has been satisfied.
-16) #save_label : save a code empty for back-patching, push label into ss
+16) #save_label : save a code empty for back-patching, push label into ss.
 17) #if_jpf : in case of 'if' 'else', fill the JPF for if, that was saved.
-18) #if_jpf_save_label : in case of 'if' with 'else', fill the JPF for 'if' condition, save a code empty for end of then to be jumped after else
+18) #if_jpf_save_label : in case of 'if' with 'else', fill the JPF for 'if' condition, save a code empty for end of then to be jumped after else.
 19) #then_jp : fill the unconditional jump saved in #18, jump at the end of then to after of else.
-20) #inc_loop_cnt : increments loop counter
-21) #save_break : save a code for break to be back-patched in #15
+20) #inc_loop_cnt : increments loop counter.
+21) #save_break : save a code for break to be back-patched in #15.
 22) #end_arr_param : uses #1 and #2 and completes definition of array param by calling symbol table and setting its offset.
 23) #end_var_param : uses #1 and #2 and completes definition of variable param by calling symbol table and setting its offset.
 24) #start_var_param : insert function lexeme to symbol table
-25) #call_func : calls function
-26) #return_void : return void procedure in callee
-27) #return_exp : return expression procedure in callee
-28) #jp_main : perform back patching to jump to main
-29) #assign_to_local : allocate a local, assign condition(whether indirect like 'x[0]' or direct 'a') to local offset
+25) #call_func : calls function.
+26) #return_void : return void procedure in callee.
+27) #return_exp : return expression procedure in callee.
+28) #jp_main : perform back patching to jump to main.
+29) #assign_to_local : allocate a local, assign condition(whether indirect like 'x[0]' or direct 'a') to local offset.

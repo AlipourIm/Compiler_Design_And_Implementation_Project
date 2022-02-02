@@ -371,3 +371,4 @@ cython_debug/
 /output.txt
 /output_2.txt
 /our_expected.txt
+/semantic_errors.txt

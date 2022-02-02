@@ -127,10 +127,7 @@ class Parser:
             self.tokens_in_line += "(" + token[1] + ", " + token[0] + ") "
 
     def print_parse_tree(self):
-        # for pre, fill, node in RenderTree(self.root):
-        #     print("%s%s" % (pre, node.name))
         parse_tree = ""
-
         for pre, fill, node in RenderTree(self.root):
             parse_tree += "%s%s" % (pre, node.name) + '\n'
         parse_tree = parse_tree[:-1]
