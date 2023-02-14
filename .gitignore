@@ -372,5 +372,8 @@ cython_debug/
 /output_2.txt
 /our_expected.txt
 /semantic_errors.txt
+/brief_results.txt
+/expected.txt
+/reslut.txt
 /TestCases/
 /log.txt
